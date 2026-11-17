@@ -1,6 +1,6 @@
 # Survey of World Models — Keynote
 
-Motion presentation for *Survey of World Models: A Proposed Definition, Evidence Criteria, and a Taxonomy by Prediction Target* (Martín Larrea).
+Motion presentation for *Survey of World Models: A Proposed Definition, Evidence Criteria, and a Taxonomy by Prediction Target* (Martín Larrea; tutor: Felipe Grijalva).
 
 **Live:** https://martin76ec.github.io/world-models-survey-keynote/
 
