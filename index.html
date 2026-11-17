@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Survey of World Models</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zalando+Sans+Expanded:wght@400;700;800;900&family=Archivo:wdth,wght@125,800&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=STIX+Two+Text:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--red:#E11B22;--ink:#0f0f10;--panel:#161617;--line:#55585C;--mute:rgba(255,255,255,.62);--soft:rgba(255,255,255,.08)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Lato,sans-serif;-webkit-font-smoothing:antialiased}
+.stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center center;overflow:hidden;color:#fff;
+  background:radial-gradient(1400px 900px at 85% -10%,#232325 0%,#121213 55%,#0c0c0d 100%);cursor:pointer}
+section{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .7s ease,visibility 0s .7s}
+section.active{opacity:1;visibility:visible;transition:opacity .7s ease}
+.H{font-family:'Zalando Sans Expanded','Archivo',sans-serif;font-stretch:125%;font-weight:800;text-transform:uppercase;letter-spacing:.005em;line-height:1.02}
+.m{font-family:'STIX Two Text',serif;font-style:italic;font-weight:400}
+.m sub,.m sup{font-style:italic;font-size:.62em}
+.up{font-style:normal}
+.kicker{position:absolute;left:120px;top:78px;font-size:20px;color:var(--red);letter-spacing:.08em}
+.kicker b{color:#fff;margin-right:14px}
+.title{position:absolute;left:120px;top:122px;font-size:64px;max-width:1680px}
+.cap{font-size:34px;line-height:1.38;color:#fff;font-weight:300}
+.mute{color:var(--mute)}
+.red{color:var(--red)}
+/* motion */
+.in{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.in.fade{transform:none}
+.in.pop{transform:scale(.86)}
+.in.left{transform:translateX(-48px)}
+.in.right{transform:translateX(48px)}
+.in.on{opacity:1;transform:none}
+/* boxes */
+.box{position:absolute;display:flex;align-items:center;justify-content:center;border:3px solid #fff;border-radius:14px;background:var(--panel);font-size:52px}
+.box.r{border-color:var(--red)}
+.box.tint{background:rgba(225,27,34,.14);border-color:var(--red)}
+.box.agent{background:#2a2a2c;font-family:Lato,sans-serif;font-size:46px;font-weight:400}
+.panel{position:absolute;border:2px solid var(--line);border-radius:22px;background:rgba(255,255,255,.035)}
+.panel>.lbl{position:absolute;left:36px;top:24px;font-size:24px}
+svg.w{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none;overflow:visible}
+path.d{fill:none;stroke:#fff;stroke-width:4;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.1s cubic-bezier(.5,0,.2,1);opacity:0}
+path.d.on{stroke-dashoffset:0;opacity:1}
+path.d.rd{stroke:var(--red)}
+path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
+.dot{position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#fff;box-shadow:0 0 18px 4px rgba(255,255,255,.55);offset-rotate:0deg;opacity:0}
+.dot.rd{background:var(--red);box-shadow:0 0 20px 6px rgba(225,27,34,.6)}
+.dot.on{opacity:1;animation:run var(--t,2.6s) linear infinite}
+@keyframes run{from{offset-distance:0%}to{offset-distance:100%}}
+.tag{display:inline-block;border:2px solid var(--line);border-radius:999px;padding:12px 28px;font-size:28px;margin:0 14px 14px 0;background:rgba(255,255,255,.04)}
+.tag.r{border-color:var(--red)}
+.card{position:absolute;border:3px solid #fff;border-radius:16px;background:var(--panel);padding:28px 34px 26px 50px}
+.card::before{content:"";position:absolute;left:18px;top:26px;bottom:26px;width:8px;border-radius:4px;background:var(--red)}
+.card .t{font-size:38px;font-weight:400}
+.card .s{font-size:27px;color:var(--mute);margin-top:6px}
+/* chrome */
+.mark{position:absolute;left:120px;bottom:52px;font-size:22px;letter-spacing:.06em;color:#fff;z-index:5}
+.mark i{font-style:normal;color:var(--red)}
+.bar{position:absolute;left:0;bottom:0;height:6px;width:0;background:var(--red);z-index:5}
+.ctl{position:absolute;right:110px;bottom:40px;display:flex;align-items:center;gap:14px;z-index:6;opacity:0;transition:opacity .4s}.stage.ui .ctl{opacity:1}
+.ctl button{all:unset;cursor:pointer;width:54px;height:54px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;background:rgba(0,0,0,.35)}
+.ctl button:hover{border-color:var(--red)}
+.ctl .n{font-family:'Zalando Sans Expanded','Archivo',sans-serif;font-stretch:125%;font-weight:700;font-size:18px;color:var(--mute);min-width:96px;text-align:center}
+.hl{background:linear-gradient(var(--red),var(--red)) 0 100%/0% 6px no-repeat;transition:background-size 1.2s cubic-bezier(.5,0,.2,1) .3s;padding-bottom:4px}
+.on .hl,.hl.on{background-size:100% 6px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:260px;height:260px}
+.grid i{border-radius:4px;background:rgba(255,255,255,.08);transition:background .6s}
+.on .grid i.lit{background:#fff}
+.on .grid i.lit.rd{background:var(--red)}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+<!-- 1 TITLE -->
+<section data-dur="7500">
+  <div class="in fade" data-at="100" style="position:absolute;left:120px;top:262px;width:14px;height:320px;background:var(--red)"></div>
+  <div class="H in left" data-at="300" style="position:absolute;left:180px;top:250px;font-size:112px;line-height:1.02">Survey of<br>world<br>models</div>
+  <div class="in" data-at="1500" style="position:absolute;left:182px;top:640px;width:900px;font-size:38px;line-height:1.35;font-weight:300;color:var(--mute)">A Proposed Definition, Evidence Criteria, and a Taxonomy by Prediction Target</div>
+  <div class="in" data-at="2400" style="position:absolute;left:182px;top:800px;font-size:32px;font-weight:700">Martín Larrea</div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <path class="d rd" data-at="1900" pathLength="1" d="M1180 860 C1340 640 1460 460 1780 300"/>
+    <path class="d" data-at="2300" pathLength="1" style="stroke-opacity:.35" d="M1180 860 C1360 760 1540 720 1780 700"/>
+  </svg>
+  <div class="m in fade" data-at="2600" style="position:absolute;left:1150px;top:880px;font-size:46px"><i>t</i></div>
+  <div class="m in fade red" data-at="2800" style="position:absolute;left:1760px;top:235px;font-size:46px">t + k</div>
+</section>
+
+<!-- 2 ENVIRONMENT -->
+<section data-dur="13000">
+  <div class="kicker H in fade" data-at="0"><b>02</b>Environment and agent boundary</div>
+  <div class="H in" data-at="200" style="position:absolute;left:120px;top:200px;font-size:92px">Environment</div>
+  <div class="cap in" data-at="1000" style="position:absolute;left:120px;top:330px;width:760px">what lies outside the agent's chosen boundary and can produce <b>observations</b>; when the task includes interaction, it can also change and produce <b>outcomes</b> in response to <span class="red">actions</span>.</div>
+  <div class="in" data-at="3600" style="position:absolute;left:120px;top:650px"><span class="tag">physical</span><span class="tag">simulated</span><span class="tag">digital</span></div>
+  <div class="in" data-at="6200" style="position:absolute;left:120px;top:800px;font-size:28px;line-height:1.6;color:var(--mute);width:800px">
+    robot&nbsp;→&nbsp;<span style="color:#fff">the room and manipulated objects</span><br>
+    game agent&nbsp;→&nbsp;<span style="color:#fff">the game engine</span>
+  </div>
+  <div class="panel in fade" data-at="400" style="left:1000px;top:190px;width:800px;height:720px;background:rgba(255,255,255,.05)"><div class="lbl H">Environment</div></div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <circle class="in fade" data-at="1300" cx="1400" cy="600" r="150" fill="#0f0f10" stroke="#fff" stroke-width="3" stroke-dasharray="12 10"/>
+    <path class="d" data-at="2200" pathLength="1" d="M1400 300 V440" marker-end="url(#ah)"/>
+    <path class="d rd" data-at="2800" pathLength="1" d="M1555 600 H1760" marker-end="url(#ahr)"/>
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
+      <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker>
+    </defs>
+  </svg>
+  <div class="in fade" data-at="1500" style="position:absolute;left:1250px;top:560px;width:300px;text-align:center;font-size:44px">Agent</div>
+  <div class="in fade mute" data-at="1700" style="position:absolute;left:1250px;top:765px;width:300px;text-align:center;font-size:24px">chosen boundary</div>
+  <div class="m in fade" data-at="2500" style="position:absolute;left:1420px;top:330px;font-size:44px">o<sub>t</sub></div>
+  <div class="m in fade red" data-at="3100" style="position:absolute;left:1640px;top:530px;font-size:44px">a<sub>t</sub></div>
+</section>
+
+<!-- 3 INTERFACE -->
+<section data-dur="16000">
+  <div class="kicker H in fade" data-at="0"><b>02</b>Environment–agent interface</div>
+  <div class="panel in fade" data-at="100" style="left:140px;top:150px;width:1640px;height:500px"><div class="lbl H">Environment</div></div>
+  <div class="mute in fade" data-at="3300" style="position:absolute;left:840px;top:200px;width:240px;text-align:center;font-size:26px">transition</div>
+  <div class="box m in pop" data-at="500" style="left:280px;top:240px;width:240px;height:110px">s<sub>t</sub></div>
+  <div class="box r m in pop" data-at="1100" style="left:300px;top:430px;width:200px;height:100px"><span class="up">Ω</span></div>
+  <div class="box m in pop" data-at="1700" style="left:280px;top:700px;width:240px;height:100px">o<sub>t</sub></div>
+  <div class="box agent in pop" data-at="2300" style="left:240px;top:880px;width:320px;height:110px">Agent</div>
+  <div class="box r m in pop" data-at="3400" style="left:840px;top:240px;width:240px;height:110px"><span class="up">T</span></div>
+  <div class="box m in pop" data-at="4300" style="left:1400px;top:240px;width:240px;height:110px">s<sub>t+1</sub></div>
+  <div class="box r m in pop" data-at="4800" style="left:1420px;top:430px;width:200px;height:100px"><span class="up">Ω</span></div>
+  <div class="box m in pop" data-at="5300" style="left:1400px;top:700px;width:240px;height:100px">o<sub>t+1</sub></div>
+  <div class="m red in fade" data-at="3100" style="position:absolute;left:720px;top:860px;font-size:50px">a<sub>t</sub></div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <defs>
+      <marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
+      <marker id="a3r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker>
+    </defs>
+    <path class="d" data-at="900" pathLength="1" d="M400 352 V424" marker-end="url(#a3)"/>
+    <path class="d" data-at="1500" pathLength="1" d="M400 532 V694" marker-end="url(#a3)"/>
+    <path class="d" data-at="2100" pathLength="1" d="M400 802 V874" marker-end="url(#a3)"/>
+    <path class="d rd" data-at="2800" pathLength="1" d="M562 935 H960 V356" marker-end="url(#a3r)"/>
+    <path class="d" data-at="3600" pathLength="1" d="M522 295 H834" marker-end="url(#a3)"/>
+    <path class="d" data-at="4000" pathLength="1" d="M1082 295 H1394" marker-end="url(#a3)"/>
+    <path class="d" data-at="4600" pathLength="1" d="M1520 352 V424" marker-end="url(#a3)"/>
+    <path class="d" data-at="5100" pathLength="1" d="M1520 532 V694" marker-end="url(#a3)"/>
+  </svg>
+  <div class="dot in fade" data-at="6000" style="offset-path:path('M400 295 H1520 V750');--t:3.2s"></div>
+  <div class="dot rd in fade" data-at="6000" style="offset-path:path('M560 935 H960 V350');--t:2.2s"></div>
+  <div class="in" data-at="6800" style="position:absolute;left:1000px;top:836px;font-size:40px;line-height:1.5">
+    <span class="m"><span class="up">T</span>(s<sub>t+1</sub> | s<sub>t</sub>, a<sub>t</sub>)</span>
+    <span style="display:inline-block;width:46px"></span>
+    <span class="m"><span class="up">Ω</span>(o<sub>t</sub> | s<sub>t</sub>)</span>
+  </div>
+  <div class="cap in" data-at="9000" style="position:absolute;left:1000px;top:912px;width:820px;font-size:30px">These are environment rules, <span class="red">not learned world-model predictions.</span></div>
+</section>
+
+<!-- 4 WHAT THE AGENT RECEIVES -->
+<section data-dur="13000">
+  <div class="kicker H in fade" data-at="0"><b>02</b>Environment and agent boundary</div>
+  <div class="in" data-at="400" style="position:absolute;left:200px;top:250px;text-align:center;width:420px">
+    <div class="grid" data-mode="full" style="margin:0 auto"></div>
+    <div style="font-size:38px;margin-top:40px">a sufficient state</div>
+  </div>
+  <div class="in" data-at="1800" style="position:absolute;left:750px;top:250px;text-align:center;width:420px">
+    <div class="grid" data-mode="partial" style="margin:0 auto"></div>
+    <div style="font-size:38px;margin-top:40px">only a partial view</div>
+  </div>
+  <div class="in" data-at="3200" style="position:absolute;left:1300px;top:250px;text-align:center;width:420px">
+    <div style="position:relative;width:260px;height:260px;margin:0 auto">
+      <div class="grid" data-mode="h1" style="position:absolute;left:-36px;top:-36px;opacity:.3"></div>
+      <div class="grid" data-mode="h2" style="position:absolute;left:-18px;top:-18px;opacity:.6"></div>
+      <div class="grid" data-mode="partial" style="position:absolute;left:0;top:0;background:#141415"></div>
+    </div>
+    <div style="font-size:38px;margin-top:40px">a history</div>
+  </div>
+  <div class="m in pop" data-at="4600" style="position:absolute;left:0;width:1920px;top:690px;text-align:center;font-size:64px">h<sub>t</sub> = (o<sub>≤t</sub> , <span class="red">a<sub>&lt;t</sub></span>)</div>
+  <div class="cap in" data-at="7000" style="position:absolute;left:0;width:1920px;top:860px;text-align:center">Neither seeing the state nor observing a long history means the agent <span class="red">knows <span class="m up" style="font-family:'STIX Two Text',serif">T</span>.</span></div>
+</section>
+
+<!-- 5 DEFINITION -->
+<section data-dur="13000">
+  <div class="kicker H in fade" data-at="0"><b>03</b>A proposed definition of a world model</div>
+  <div class="cap in mute" data-at="300" style="position:absolute;left:120px;top:190px;width:1500px;font-size:36px">A learned world model attempts to predict relevant consequences from the information available through this interface.</div>
+  <div class="in fade" data-at="2800" style="position:absolute;left:120px;top:370px;width:1680px;height:3px;background:var(--line)"></div>
+  <div class="H in" data-at="3200" style="position:absolute;left:120px;top:430px;font-size:60px">World model</div>
+  <div class="in" data-at="4000" style="position:absolute;left:120px;top:530px;width:1600px;font-size:58px;line-height:1.3;font-weight:300">a predictive relation from an available state or observation history to an <span class="hl" style="font-weight:700">outcome at a later time</span></div>
+  <div class="in" data-at="7400" style="position:absolute;left:120px;top:820px;width:1700px">
+    <span class="tag">observation</span><span class="tag">measured state</span><span class="tag">geometry</span><span class="tag">learned representation</span><span class="tag r">decision-relevant signal</span>
+  </div>
+</section>
+
+<!-- 6 FORMAL + COMPARE -->
+<section data-dur="16000">
+  <div class="kicker H in fade" data-at="0"><b>03</b>A proposed definition of a world model</div>
+  <div class="m in" data-at="200" style="position:absolute;left:0;width:1920px;top:150px;text-align:center;font-size:52px">
+    z<sub>t</sub> = f<sub>θ</sub>(h<sub>t</sub>)<span style="display:inline-block;width:70px"></span>ẑ<sub>t+k</sub> = g<sub>φ</sub>(z<sub>t</sub> , a<sub>t:t+k−1</sub>)<span style="display:inline-block;width:70px"></span><span class="red">k &gt; 0</span>
+  </div>
+  <div class="panel in fade" data-at="900" style="left:130px;top:290px;width:1700px;height:300px"><div class="lbl H">Learned prediction</div></div>
+  <div class="box m in pop" data-at="1200" style="left:180px;top:400px;width:200px;height:110px">h<sub>t</sub></div>
+  <div class="box m in pop" data-at="1700" style="left:480px;top:400px;width:200px;height:110px">f<sub>θ</sub></div>
+  <div class="box m in pop" data-at="2200" style="left:780px;top:400px;width:200px;height:110px">z<sub>t</sub></div>
+  <div class="box m in pop" data-at="2700" style="left:1080px;top:400px;width:220px;height:110px">g<sub>φ</sub></div>
+  <div class="m red in fade" data-at="2900" style="position:absolute;left:1060px;top:305px;width:260px;text-align:center;font-size:36px">a<sub>t:t+k−1</sub></div>
+  <div class="box tint m in pop" data-at="3400" style="left:1520px;top:400px;width:280px;height:110px">ẑ<sub>t+k</sub></div>
+  <div class="panel in fade" data-at="5200" style="left:130px;top:650px;width:1700px;height:260px"><div class="lbl H">Observed target</div></div>
+  <div class="box m in pop" data-at="5500" style="left:420px;top:720px;width:280px;height:110px">o<sub>t+k</sub></div>
+  <div class="box in pop" data-at="6000" style="left:880px;top:720px;width:360px;height:110px;font-size:44px">encode</div>
+  <div class="box m in pop" data-at="6500" style="left:1520px;top:720px;width:280px;height:110px">z<sub>t+k</sub></div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <defs><marker id="a6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
+    <marker id="a6r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker></defs>
+    <path class="d" data-at="1500" pathLength="1" d="M382 455 H474" marker-end="url(#a6)"/>
+    <path class="d" data-at="2000" pathLength="1" d="M682 455 H774" marker-end="url(#a6)"/>
+    <path class="d" data-at="2500" pathLength="1" d="M982 455 H1074" marker-end="url(#a6)"/>
+    <path class="d rd" data-at="2900" pathLength="1" d="M1190 352 V394" marker-end="url(#a6r)"/>
+    <path class="d" data-at="3100" pathLength="1" d="M1302 455 H1514" marker-end="url(#a6)"/>
+    <path class="d" data-at="5800" pathLength="1" d="M702 775 H874" marker-end="url(#a6)"/>
+    <path class="d" data-at="6300" pathLength="1" d="M1242 775 H1514" marker-end="url(#a6)"/>
+    <path class="dash in fade" data-at="7400" d="M1660 512 V716"/>
+  </svg>
+  <div class="red in fade" data-at="7600" style="position:absolute;left:1690px;top:592px;font-size:30px">compare</div>
+  <div class="dot in fade" data-at="4000" style="offset-path:path('M280 455 H1660');--t:3s"></div>
+  <div class="dot rd in fade" data-at="8000" style="offset-path:path('M1660 775 V455');--t:1.6s"></div>
+  <div class="cap in" data-at="9000" style="position:absolute;left:130px;top:950px;font-size:30px">only the executed action sequence has a <span class="red">matched observed outcome</span></div>
+</section>
+
+<!-- 7 BOUNDARY -->
+<section data-dur="14000">
+  <div class="kicker H in fade" data-at="0"><b>04</b>Evidence of a temporal predictive interface</div>
+  <div class="title H in" data-at="200" style="font-size:56px">The shared time index is the boundary</div>
+  <!-- left: k = 0 -->
+  <div class="in" data-at="1200" style="position:absolute;left:180px;top:290px;width:640px">
+    <div class="H mute" style="font-size:26px">Structural inference</div>
+    <div class="m" style="font-size:60px;margin-top:6px">k = 0</div>
+  </div>
+  <div class="in pop" data-at="1600" style="position:absolute;left:220px;top:440px;width:360px;height:360px;border:3px solid #fff;border-radius:12px;background:repeating-linear-gradient(0deg,transparent 0 71px,rgba(255,255,255,.08) 71px 72px),repeating-linear-gradient(90deg,transparent 0 71px,rgba(255,255,255,.08) 71px 72px)">
+    <div class="in fade" data-at="2400" style="position:absolute;left:180px;top:108px;width:144px;height:144px;border:3px dashed var(--red);border-radius:8px;background:repeating-linear-gradient(45deg,rgba(225,27,34,.35) 0 8px,transparent 8px 18px)"></div>
+  </div>
+  <div class="m in fade" data-at="1800" style="position:absolute;left:220px;top:820px;width:360px;text-align:center;font-size:40px">t</div>
+  <div class="in" data-at="3200" style="position:absolute;left:640px;top:470px;font-size:30px;line-height:1.9;color:var(--mute)">masked region<br>occluded surface<br>novel view</div>
+  <!-- divider -->
+  <div class="in fade" data-at="4200" style="position:absolute;left:958px;top:300px;width:3px;height:560px;background:var(--line)"></div>
+  <!-- right: k > 0 -->
+  <div class="in" data-at="4600" style="position:absolute;left:1080px;top:290px;width:700px">
+    <div class="H red" style="font-size:26px">World model</div>
+    <div class="m" style="font-size:60px;margin-top:6px">k &gt; 0</div>
+  </div>
+  <div class="in pop" data-at="5000" style="position:absolute;left:1080px;top:460px;width:290px;height:290px;border:3px solid #fff;border-radius:12px;background:var(--panel)">
+    <div style="position:absolute;left:60px;top:150px;width:60px;height:60px;border-radius:50%;background:#fff"></div></div>
+  <div class="in pop" data-at="6000" style="position:absolute;left:1520px;top:460px;width:290px;height:290px;border:3px solid var(--red);border-radius:12px;background:rgba(225,27,34,.1)">
+    <div style="position:absolute;left:170px;top:60px;width:60px;height:60px;border-radius:50%;background:var(--red)"></div></div>
+  <svg class="w" viewBox="0 0 1920 1080"><defs><marker id="a7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker></defs>
+    <path class="d rd" data-at="5600" pathLength="1" d="M1376 605 H1512" marker-end="url(#a7)"/></svg>
+  <div class="m in fade" data-at="5200" style="position:absolute;left:1080px;top:770px;width:290px;text-align:center;font-size:40px">t</div>
+  <div class="m in fade red" data-at="6200" style="position:absolute;left:1520px;top:770px;width:290px;text-align:center;font-size:40px">t + k</div>
+  <div class="in" data-at="8000" style="position:absolute;left:180px;top:920px;font-size:30px;color:var(--mute)">adjacent structural case</div>
+  <div class="in" data-at="8400" style="position:absolute;left:1080px;top:920px;font-size:30px">outcome at a later time</div>
+</section>
+
+<!-- 8 WHY DIFFERENT TESTS -->
+<section data-dur="12000">
+  <div class="kicker H in fade" data-at="0"><b>04</b>What evidence supports a world-model claim?</div>
+  <div class="card in left" data-at="400" style="left:120px;top:250px;width:800px;height:380px;padding-top:44px">
+    <div class="H" style="font-size:44px">Membership</div>
+    <div class="cap" style="margin-top:28px;font-size:32px">does the system learn and expose a temporally indexed prediction of an environmental outcome?</div>
+  </div>
+  <div class="card in right" data-at="1600" style="left:1000px;top:250px;width:800px;height:380px;padding-top:44px;border-color:var(--red)">
+    <div class="H" style="font-size:44px">Quality</div>
+    <div class="cap" style="margin-top:28px;font-size:32px">how closely does that prediction track the environment within the claimed scope?</div>
+  </div>
+  <div class="H in" data-at="4200" style="position:absolute;left:0;width:1920px;top:730px;text-align:center;font-size:48px">A model may meet the definition<br><span class="red">and still be inaccurate.</span></div>
+</section>
+
+<!-- 9 DIFFERENT CLAIMS -->
+<section data-dur="13000">
+  <div class="kicker H in fade" data-at="0"><b>04</b>What evidence supports a world-model claim?</div>
+  <div class="box in pop" data-at="300" style="left:120px;top:240px;width:520px;height:220px;font-size:36px;text-align:center;padding:24px;font-family:Lato,sans-serif">A visually plausible rollout</div>
+  <div class="box in pop" data-at="900" style="left:700px;top:240px;width:520px;height:220px;font-size:36px;text-align:center;padding:24px;font-family:Lato,sans-serif">an accurate one-step state estimate</div>
+  <div class="box in pop" data-at="1500" style="left:1280px;top:240px;width:520px;height:220px;font-size:36px;text-align:center;padding:24px;font-family:Lato,sans-serif">improved task reward</div>
+  <svg class="w" viewBox="0 0 1920 1080"><defs><marker id="a9" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker></defs>
+    <path class="d rd" data-at="2400" pathLength="1" d="M380 464 V520 H1540 V464"/>
+    <path class="d rd" data-at="2900" pathLength="1" d="M960 520 V590" marker-end="url(#a9)"/></svg>
+  <div class="H in" data-at="3300" style="position:absolute;left:0;width:1920px;top:620px;text-align:center;font-size:56px">support <span class="red">different claims.</span></div>
+  <div class="cap in mute" data-at="6000" style="position:absolute;left:260px;width:1400px;top:800px;text-align:center">None alone establishes long-horizon consistency, fidelity to interventions, or transfer to new conditions.</div>
+</section>
+
+<!-- 10 FIVE TESTS -->
+<section data-dur="13000">
+  <div class="kicker H in fade" data-at="0"><b>04</b>Five complementary forms of evidence</div>
+  <div style="position:absolute;left:120px;top:190px;width:1680px">
+    <div class="in left" data-at="300"  style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">01</span><span style="font-size:50px">Target fidelity</span></div>
+    <div class="in left" data-at="1000" style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">02</span><span style="font-size:50px">Temporal consistency</span></div>
+    <div class="in left" data-at="1700" style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">03</span><span style="font-size:50px">Action or intervention sensitivity</span></div>
+    <div class="in left" data-at="2400" style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">04</span><span style="font-size:50px">Generalization and uncertainty</span></div>
+    <div class="in left" data-at="3100" style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">05</span><span style="font-size:50px">Decision utility</span></div>
+  </div>
+  <div class="H in" data-at="5200" style="position:absolute;left:120px;top:850px;font-size:40px">No single scalar score certifies<br><span class="red">a general world model.</span></div>
+</section>
+
+<!-- 11 TAXONOMY: TARGET -->
+<section data-dur="15000">
+  <div class="kicker H in fade" data-at="0"><b>05</b>Taxonomy by prediction target, modality, and application</div>
+  <div class="title H in" data-at="200" style="font-size:52px">Prediction target is the primary axis</div>
+  <div class="red in fade" data-at="6500" style="position:absolute;right:120px;top:138px;font-size:30px">multiple memberships allowed</div>
+  <div class="card in pop" data-at="900"  style="left:120px;top:250px;width:540px;height:150px"><div class="t">Structured state</div><div class="s">measured state variables</div></div>
+  <div class="card in pop" data-at="1200" style="left:690px;top:250px;width:540px;height:150px"><div class="t">Observations / tokens</div><div class="s">frames, sensory outputs</div></div>
+  <div class="card in pop" data-at="1500" style="left:1260px;top:250px;width:540px;height:150px"><div class="t">Reconstructive latent</div><div class="s">latent dynamics + decoder</div></div>
+  <div class="card in pop" data-at="1800" style="left:120px;top:425px;width:540px;height:150px"><div class="t">Learned target features</div><div class="s">future or masked features</div></div>
+  <div class="card in pop" data-at="2100" style="left:690px;top:425px;width:540px;height:150px"><div class="t">Decision signals</div><div class="s">reward, value, policy</div></div>
+  <div class="card in pop" data-at="2400" style="left:1260px;top:425px;width:540px;height:150px"><div class="t">Explicit 3D geometry</div><div class="s">future spatial structure</div></div>
+  <div class="card in pop" data-at="2700" style="left:120px;top:600px;width:540px;height:150px"><div class="t">Textual state change</div><div class="s">described environment change</div></div>
+  <div class="card in pop" data-at="3000" style="left:690px;top:600px;width:540px;height:150px"><div class="t">World + actions jointly</div><div class="s">outcomes and executable actions</div></div>
+  <div class="in fade" data-at="3600" style="position:absolute;left:1260px;top:600px;width:540px;height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:32px;color:var(--mute);line-height:1.35"><span>Temporal claim: outcome<br>at a later time (<span class="m red" style="font-size:36px">k &gt; 0</span>)</span></div>
+  <div class="in" data-at="4800" style="position:absolute;left:120px;top:785px;width:1680px;height:110px;border:2px solid var(--line);border-radius:16px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 40px">
+    <span class="H" style="font-size:28px">Adjacent structural case&nbsp;&nbsp;(k = 0)</span>
+    <span class="mute" style="font-size:30px">masked features; scene structure / novel views</span>
+  </div>
+</section>
+
+<!-- 12 TAXONOMY: MODALITY + APPLICATION -->
+<section data-dur="14000">
+  <div class="kicker H in fade" data-at="0"><b>05</b>Taxonomy by prediction target, modality, and application</div>
+  <div class="title H in" data-at="200" style="font-size:44px">Modality and application are additional axes</div>
+  <div class="in" data-at="900" style="position:absolute;left:120px;top:260px;width:780px">
+    <div class="H red" style="font-size:30px;margin-bottom:26px">Modality</div>
+    <div style="font-size:24px;color:var(--mute);margin-bottom:22px">what the model receives and predicts</div>
+  </div>
+  <div style="position:absolute;left:120px;top:380px;width:780px">
+    <div class="in left" data-at="1300"><span class="tag">Structured variables</span></div>
+    <div class="in left" data-at="1600"><span class="tag">Images and video</span></div>
+    <div class="in left" data-at="1900"><span class="tag">Learned visual features</span></div>
+    <div class="in left" data-at="2200"><span class="tag">Geometry and spatial data</span></div>
+    <div class="in left" data-at="2500"><span class="tag">Text and interface state</span></div>
+  </div>
+  <div class="in fade" data-at="3000" style="position:absolute;left:958px;top:270px;width:3px;height:640px;background:var(--line)"></div>
+  <div class="in" data-at="3400" style="position:absolute;left:1040px;top:260px;width:780px">
+    <div class="H red" style="font-size:30px;margin-bottom:26px">Application</div>
+    <div style="font-size:24px;color:var(--mute);margin-bottom:22px">where the predictive relation is used</div>
+  </div>
+  <div style="position:absolute;left:1040px;top:380px;width:780px">
+    <div class="in right" data-at="3800"><span class="tag">Robotics and embodied control</span></div>
+    <div class="in right" data-at="4100"><span class="tag">Games and interactive simulation</span></div>
+    <div class="in right" data-at="4400"><span class="tag">Driving</span></div>
+    <div class="in right" data-at="4700"><span class="tag">Web and software interaction</span></div>
+    <div class="in right" data-at="5000"><span class="tag">Scientific and biological forecasting</span></div>
+    <div class="in right" data-at="5300"><span class="tag">Video and environment generation</span></div>
+  </div>
+</section>
+
+<!-- 13 CLOSE -->
+<section data-dur="12000">
+  <div class="kicker H in fade" data-at="0"><b>05</b>Describe separately</div>
+  <div style="position:absolute;left:120px;top:200px;width:1680px">
+    <span class="tag in pop" data-at="300">Training signal</span><span class="tag in pop" data-at="550">Conditioning</span><span class="tag in pop" data-at="800">Horizon</span><span class="tag in pop" data-at="1050">Architecture</span><span class="tag in pop" data-at="1300">Input modality</span><span class="tag in pop" data-at="1550">Use</span>
+  </div>
+  <div class="in fade" data-at="2600" style="position:absolute;left:120px;top:440px;width:14px;height:180px;background:var(--red)"></div>
+  <div class="H in left" data-at="2800" style="position:absolute;left:180px;top:440px;font-size:74px;line-height:1.08;width:1600px">Evidence must be matched to the <span class="red">predicted target</span> and <span class="red">intended use.</span></div>
+</section>
+
+<div class="mark H">US<i>F</i>Q</div>
+<div class="bar" id="bar"></div>
+<div class="ctl" id="ctl">
+  <button id="prev" aria-label="Previous">‹</button>
+  <button id="play" aria-label="Pause">❚❚</button>
+  <button id="next" aria-label="Next">›</button>
+  <span class="n" id="num">01 / 13</span>
+</div>
+</div>
+
+<script>
+(function(){
+  const stage=document.getElementById('stage');
+  function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='translate(-50%,-50%) scale('+s+')';}
+  addEventListener('resize',fit);fit();
+
+  let hideT;function ui(){stage.classList.add('ui');clearTimeout(hideT);hideT=setTimeout(()=>stage.classList.remove('ui'),2200);}
+  addEventListener('mousemove',ui);addEventListener('touchstart',ui);ui();
+  document.querySelectorAll('.box').forEach(b=>{b.innerHTML='<span>'+b.innerHTML+'</span>';});
+  // build grids
+  document.querySelectorAll('.grid').forEach(g=>{
+    const mode=g.dataset.mode;
+    const sets={full:null,partial:[6,7,11,12,13],h1:[0,1,5,6],h2:[2,3,7,8]};
+    for(let i=0;i<25;i++){const c=document.createElement('i');
+      if(mode==='full'||(sets[mode]&&sets[mode].includes(i)))c.className='lit'+(mode==='partial'?'':'');
+      g.appendChild(c);}
+  });
+
+  const scenes=[...document.querySelectorAll('section')];
+  const n=scenes.length;let i=0,timers=[],playing=true,elapsed=0,last=performance.now();
+  const bar=document.getElementById('bar'),num=document.getElementById('num'),playBtn=document.getElementById('play');
+  function show(k){
+    timers.forEach(clearTimeout);timers=[];
+    i=Math.max(0,Math.min(n-1,k));
+    scenes.forEach((s,j)=>{s.classList.toggle('active',j===i);});
+    const s=scenes[i];
+    s.querySelectorAll('[data-at]').forEach(e=>{e.classList.remove('on');
+      timers.push(setTimeout(()=>e.classList.add('on'),+e.dataset.at+250));});
+    elapsed=0;num.textContent=String(i+1).padStart(2,'0')+' / '+String(n).padStart(2,'0');
+  }
+  function setPlay(p){playing=p;playBtn.textContent=p?'❚❚':'▶';playBtn.setAttribute('aria-label',p?'Pause':'Play');}
+  function loop(now){
+    if(playing)elapsed+=now-last;last=now;
+    const dur=+scenes[i].dataset.dur;
+    bar.style.width=Math.min(100,elapsed/dur*100)+'%';
+    if(playing&&elapsed>=dur){ if(i<n-1)show(i+1); else setPlay(false); }
+    requestAnimationFrame(loop);
+  }
+  document.getElementById('next').onclick=e=>{e.stopPropagation();show(i+1);};
+  document.getElementById('prev').onclick=e=>{e.stopPropagation();show(i-1);};
+  playBtn.onclick=e=>{e.stopPropagation();if(!playing&&i===n-1&&elapsed>=+scenes[i].dataset.dur)show(0);setPlay(!playing);};
+  stage.addEventListener('click',()=>show(i+1));
+  addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown')show(i+1);
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')show(i-1);
+    else if(e.key===' '){e.preventDefault();setPlay(!playing);}
+    else if(e.key==='Home')show(0);
+  });
+  show(0);requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
