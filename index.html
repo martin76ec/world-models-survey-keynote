@@ -44,10 +44,23 @@ path.d{fill:none;stroke:#fff;stroke-width:4;stroke-dasharray:1;stroke-dashoffset
 path.d.on{stroke-dashoffset:0;opacity:1}
 path.d.rd{stroke:var(--red)}
 path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
-.dot{position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#fff;box-shadow:0 0 18px 4px rgba(255,255,255,.55);offset-rotate:0deg;opacity:0}
-.dot.rd{background:var(--red);box-shadow:0 0 20px 6px rgba(225,27,34,.6)}
-.dot.on{opacity:1;animation:run var(--t,2.6s) linear infinite}
-@keyframes run{from{offset-distance:0%}to{offset-distance:100%}}
+.dot{position:absolute;left:0;top:0;width:18px;height:18px;offset-anchor:50% 50%;offset-rotate:0deg;opacity:0;--c:#fff;--g:rgba(255,255,255,.55);--gs:18px 4px}
+.dot::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--c);box-shadow:0 0 var(--gs) var(--g);transform:scale(0)}
+.dot.rd{--c:var(--red);--g:rgba(225,27,34,.6);--gs:20px 6px}
+.dot.gray{--c:#55585C;--g:transparent}
+/* carrier glides along the line; the visible circle grows out of the start and shrinks into the arrowhead */
+.dot.on{opacity:1;animation:run calc(var(--t,2.6s) * 1.35) infinite}
+.dot.on::before{animation:grow calc(var(--t,2.6s) * 1.35) infinite;animation-delay:inherit;animation-play-state:inherit}
+@keyframes run{
+  0%{offset-distance:0%;animation-timing-function:cubic-bezier(.45,0,.3,1)}
+  74%,100%{offset-distance:100%}
+}
+@keyframes grow{
+  0%{transform:scale(0);animation-timing-function:ease-out}
+  12%{transform:scale(1)}
+  60%{transform:scale(1);animation-timing-function:ease-in}
+  74%,100%{transform:scale(0)}
+}
 .tag{display:inline-block;border:2px solid var(--line);border-radius:999px;padding:12px 28px;font-size:28px;margin:0 14px 14px 0;background:rgba(255,255,255,.04)}
 .tag.r{border-color:var(--red)}
 .card{position:absolute;border:3px solid #fff;border-radius:16px;background:var(--panel);padding:28px 34px 26px 50px}
@@ -68,9 +81,63 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
 .grid i{border-radius:4px;background:rgba(255,255,255,.08);transition:background .6s}
 .on .grid i.lit{background:#fff}
 .on .grid i.lit.rd{background:var(--red)}
+/* v2: graphical scenes */
+.ic{fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.lab{position:absolute;text-align:center;font-size:26px;color:var(--mute)}
+.chip{display:flex;align-items:center;justify-content:center;height:64px;border:2px solid var(--line);border-radius:12px;background:var(--panel);font-family:'STIX Two Text',serif;font-style:italic;font-size:34px}
+.chip.r{border-color:var(--red);background:rgba(225,27,34,.14)}
+.chip sub,.chip sup{font-size:.62em}
+.row{position:absolute;left:120px;display:flex;align-items:center}
+.row .nm{width:400px;font-size:32px}
+.row .arr{position:relative;width:180px;height:64px}
+.row .arr::before{content:"";position:absolute;left:16px;right:22px;top:31px;border-top:3px solid #fff}
+.row .arr::after{content:"";position:absolute;right:12px;top:24px;border-left:16px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent}
+.row .arr.pass::before{border-top:3px dashed var(--line)}
+.row .arr .a{position:absolute;left:0;right:0;top:-14px;text-align:center;font-family:'STIX Two Text',serif;font-style:italic;font-size:28px;color:var(--red)}
+.row .arr .a sub{font-size:.62em}
+.row .tm{width:260px;margin-left:60px;text-align:center;font-family:'STIX Two Text',serif;font-style:italic;font-size:34px;color:var(--mute)}
+.row .tm sub{font-size:.62em}
+.sat{position:absolute;width:300px;height:124px;margin:-62px 0 0 -150px;border:3px solid #fff;border-radius:16px;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sat .q{font-family:'STIX Two Text',serif;font-style:italic;font-size:44px;line-height:1.1}
+.sat .q sub,.sat .q sup{font-size:.6em}
+.sat .nm{font-size:22px;color:var(--mute);margin-top:6px}
+.sat.adj{border-style:dashed;border-color:var(--line);background:#141415}
+.tile{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:18px;background:rgba(255,255,255,.035);color:#fff}
+.tile svg{width:110px;height:110px}
+.tile div{font-size:26px;margin-top:14px;color:var(--mute)}
+@keyframes roll{0%,100%{transform:translateX(0)}50%{transform:translateX(110px)}}
+@keyframes hop{0%,100%{transform:translate(0,0)}25%{transform:translate(60px,-90px)}50%{transform:translate(120px,0)}75%{transform:translate(60px,-40px)}}
+@keyframes clk{0%,60%,100%{fill:rgba(225,27,34,0)}70%,85%{fill:rgba(225,27,34,.6)}}
+@keyframes cur{0%,100%{transform:translate(60px,60px)}55%,90%{transform:translate(0,0)}}
+@keyframes swing{0%,100%{transform:rotate(-58deg)}50%{transform:rotate(48deg)}}
+.anim-roll{animation:roll 3.4s ease-in-out infinite}
+.anim-hop{animation:hop 2.6s ease-in-out infinite}
+.anim-clk{animation:clk 2.8s linear infinite}
+.anim-cur{animation:cur 2.8s ease-in-out infinite}
+.needle{transform-box:view-box;transform-origin:1450px 640px;animation:swing 4s ease-in-out infinite}
+.stage.paused *{animation-play-state:paused!important}
+.overlay{position:absolute;border:3px solid var(--red);border-radius:18px;background:rgba(225,27,34,.08)}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
+    <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker>
+    <marker id="ahg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#55585C"/></marker>
+    <symbol id="i-table" viewBox="0 0 64 64"><g class="ic"><rect x="8" y="12" width="48" height="40" rx="3"/><path d="M8 25H56M8 38H56M24 12V52M40 12V52"/></g></symbol>
+    <symbol id="i-film" viewBox="0 0 64 64"><g class="ic"><rect x="8" y="14" width="48" height="36" rx="3"/><path d="M8 21H56M8 43H56M16 14V21M26 14V21M38 14V21M48 14V21M16 43V50M26 43V50M38 43V50M48 43V50"/><path d="M28 27L38 32L28 37Z"/></g></symbol>
+    <symbol id="i-feat" viewBox="0 0 64 64"><g fill="currentColor"><circle cx="14" cy="14" r="5"/><circle cx="32" cy="14" r="2.5"/><circle cx="50" cy="14" r="6"/><circle cx="14" cy="32" r="3"/><circle cx="32" cy="32" r="7"/><circle cx="50" cy="32" r="3.5"/><circle cx="14" cy="50" r="6"/><circle cx="32" cy="50" r="3.5"/><circle cx="50" cy="50" r="2.5"/></g></symbol>
+    <symbol id="i-geo" viewBox="0 0 64 64"><g class="ic" stroke-dasharray="1 5.5" stroke-width="4"><path d="M12 22L32 11L52 22V44L32 55L12 44Z"/><path d="M12 22L32 33L52 22M32 33V55"/></g></symbol>
+    <symbol id="i-text" viewBox="0 0 64 64"><g class="ic"><path d="M10 16H54M10 27H54M10 38H46M10 49H32"/></g></symbol>
+    <symbol id="i-robot" viewBox="0 0 64 64"><g class="ic"><path d="M10 56H38M16 56V49H32V56M24 49L19 31L44 19M44 19L53 13M44 19L55 25"/><circle cx="19" cy="31" r="3.5"/><circle cx="44" cy="19" r="3.5"/></g></symbol>
+    <symbol id="i-pad" viewBox="0 0 64 64"><g class="ic"><path d="M18 20H46C54 20 59 30 59 41C59 49 53 51 48 46L42 40H22L16 46C11 51 5 49 5 41C5 30 10 20 18 20Z"/><path d="M18 27V37M13 32H23"/><circle cx="42" cy="29" r="1.8"/><circle cx="48" cy="35" r="1.8"/></g></symbol>
+    <symbol id="i-car" viewBox="0 0 64 64"><g class="ic"><path d="M6 42V33L14 22H42L52 32H58V42Z"/><path d="M14 22L10 32H52"/><circle cx="18" cy="43" r="5.5"/><circle cx="46" cy="43" r="5.5"/></g></symbol>
+    <symbol id="i-web" viewBox="0 0 64 64"><g class="ic"><rect x="6" y="10" width="52" height="44" rx="4"/><path d="M6 20H58M14 30H34M14 38H42M14 46H26"/><path d="M38 40L48 50M38 40V52L42 48L46 54"/></g></symbol>
+    <symbol id="i-cell" viewBox="0 0 64 64"><g class="ic"><path d="M32 8C46 8 56 18 56 32C56 46 46 56 32 56C18 56 8 46 8 32C8 18 18 8 32 8Z"/><circle cx="36" cy="28" r="8"/><circle cx="20" cy="40" r="2"/><circle cx="40" cy="46" r="2"/></g></symbol>
+    <symbol id="i-gen" viewBox="0 0 64 64"><g class="ic"><rect x="6" y="20" width="36" height="30" rx="3"/><path d="M42 30L56 22V48L42 40"/><path d="M52 4V14M47 9H57"/></g></symbol>
+  </defs>
+</svg>
 <div class="stage" id="stage">
 
 <!-- 1 TITLE -->
@@ -89,38 +156,66 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
 </section>
 
 <!-- 2 ENVIRONMENT -->
-<section data-dur="13000">
-  <div class="kicker H in fade" data-at="0"><b>02</b>Environment and agent boundary</div>
-  <div class="H in" data-at="200" style="position:absolute;left:120px;top:200px;font-size:92px">Environment</div>
-  <div class="cap in" data-at="1000" style="position:absolute;left:120px;top:330px;width:760px">what lies outside the agent's chosen boundary and can produce <b>observations</b>; when the task includes interaction, it can also change and produce <b>outcomes</b> in response to <span class="red">actions</span>.</div>
-  <div class="in" data-at="3600" style="position:absolute;left:120px;top:650px"><span class="tag">physical</span><span class="tag">simulated</span><span class="tag">digital</span></div>
-  <div class="in" data-at="6200" style="position:absolute;left:120px;top:800px;font-size:28px;line-height:1.6;color:var(--mute);width:800px">
-    robot&nbsp;→&nbsp;<span style="color:#fff">the room and manipulated objects</span><br>
-    game agent&nbsp;→&nbsp;<span style="color:#fff">the game engine</span>
-  </div>
-  <div class="panel in fade" data-at="400" style="left:1000px;top:190px;width:800px;height:720px;background:rgba(255,255,255,.05)"><div class="lbl H">Environment</div></div>
+<section data-dur="11000">
+  <div class="kicker H in fade" data-at="0"><b>01</b>Environment</div>
+  <div class="panel in fade" data-at="200" style="left:130px;top:150px;width:1660px;height:570px"><div class="lbl H">Environment</div></div>
   <svg class="w" viewBox="0 0 1920 1080">
-    <circle class="in fade" data-at="1300" cx="1400" cy="600" r="150" fill="#0f0f10" stroke="#fff" stroke-width="3" stroke-dasharray="12 10"/>
-    <path class="d" data-at="2200" pathLength="1" d="M1400 300 V440" marker-end="url(#ah)"/>
-    <path class="d rd" data-at="2800" pathLength="1" d="M1555 600 H1760" marker-end="url(#ahr)"/>
-    <defs>
-      <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
-      <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker>
-    </defs>
+    <!-- physical -->
+    <g class="in fade" data-at="700">
+      <rect x="180" y="230" width="480" height="400" rx="14" fill="rgba(255,255,255,.03)" stroke="#55585C" stroke-width="2"/>
+      <path d="M200 590H640" stroke="#fff" stroke-width="3"/>
+      <path d="M450 510H620M465 510V590M605 510V590" stroke="#fff" stroke-width="3" fill="none"/>
+      <rect x="510" y="458" width="52" height="52" fill="rgba(225,27,34,.35)" stroke="#E11B22" stroke-width="3"/>
+      <rect x="230" y="560" width="76" height="30" fill="#161617" stroke="#fff" stroke-width="3"/>
+      <path d="M268 560L300 420L430 384M430 384L452 366M430 384L452 402" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="300" cy="420" r="9" fill="#161617" stroke="#fff" stroke-width="3"/><circle cx="430" cy="384" r="9" fill="#161617" stroke="#fff" stroke-width="3"/>
+      <circle class="anim-roll" cx="330" cy="574" r="16" fill="#fff"/>
+    </g>
+    <!-- simulated -->
+    <g class="in fade" data-at="1100">
+      <rect x="720" y="230" width="480" height="400" rx="14" fill="rgba(255,255,255,.03)" stroke="#55585C" stroke-width="2"/>
+      <g fill="#2a2a2c" stroke="#fff" stroke-width="2">
+        <rect x="740" y="550" width="40" height="40"/><rect x="780" y="550" width="40" height="40"/><rect x="820" y="550" width="40" height="40"/><rect x="860" y="550" width="40" height="40"/><rect x="900" y="550" width="40" height="40"/><rect x="940" y="550" width="40" height="40"/><rect x="980" y="550" width="40" height="40"/><rect x="1020" y="550" width="40" height="40"/><rect x="1060" y="550" width="40" height="40"/><rect x="1100" y="550" width="40" height="40"/><rect x="1140" y="550" width="40" height="40"/>
+        <rect x="1000" y="420" width="40" height="40"/><rect x="1040" y="420" width="40" height="40"/><rect x="1080" y="420" width="40" height="40"/>
+      </g>
+      <circle cx="1060" cy="370" r="14" fill="none" stroke="#fff" stroke-width="3"/>
+      <rect class="anim-hop" x="790" y="506" width="44" height="44" rx="4" fill="#E11B22"/>
+    </g>
+    <!-- digital -->
+    <g class="in fade" data-at="1500">
+      <rect x="1260" y="230" width="480" height="400" rx="14" fill="rgba(255,255,255,.03)" stroke="#55585C" stroke-width="2"/>
+      <rect x="1290" y="262" width="420" height="336" rx="12" fill="#161617" stroke="#fff" stroke-width="3"/>
+      <path d="M1290 304H1710" stroke="#fff" stroke-width="2"/>
+      <circle cx="1312" cy="283" r="5" fill="#55585C"/><circle cx="1330" cy="283" r="5" fill="#55585C"/><circle cx="1348" cy="283" r="5" fill="#55585C"/>
+      <rect x="1372" y="273" width="316" height="20" rx="10" fill="rgba(255,255,255,.08)"/>
+      <rect x="1316" y="328" width="150" height="110" rx="6" fill="rgba(255,255,255,.1)"/>
+      <path d="M1490 340H1684M1490 372H1684M1490 404H1620M1316 470H1600M1316 500H1540" stroke="rgba(255,255,255,.3)" stroke-width="10" stroke-linecap="round"/>
+      <rect class="anim-clk" x="1540" y="530" width="140" height="44" rx="8" stroke="#E11B22" stroke-width="3"/>
+      <path class="anim-cur" d="M1610 552L1610 584L1619 576L1626 592L1632 589L1625 573L1637 573Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+    </g>
+    <!-- agent -->
+    <circle class="in fade" data-at="2300" cx="960" cy="900" r="100" fill="#0f0f10" stroke="#fff" stroke-width="3" stroke-dasharray="12 10"/>
+    <path class="d" data-at="2800" pathLength="1" d="M900 724 V814" marker-end="url(#ah)"/>
+    <path class="d rd" data-at="3300" pathLength="1" d="M1020 814 V726" marker-end="url(#ahr)"/>
   </svg>
-  <div class="in fade" data-at="1500" style="position:absolute;left:1250px;top:560px;width:300px;text-align:center;font-size:44px">Agent</div>
-  <div class="in fade mute" data-at="1700" style="position:absolute;left:1250px;top:765px;width:300px;text-align:center;font-size:24px">chosen boundary</div>
-  <div class="m in fade" data-at="2500" style="position:absolute;left:1420px;top:330px;font-size:44px">o<sub>t</sub></div>
-  <div class="m in fade red" data-at="3100" style="position:absolute;left:1640px;top:530px;font-size:44px">a<sub>t</sub></div>
+  <div class="lab in fade" data-at="900" style="left:180px;top:646px;width:480px">physical</div>
+  <div class="lab in fade" data-at="1300" style="left:720px;top:646px;width:480px">simulated</div>
+  <div class="lab in fade" data-at="1700" style="left:1260px;top:646px;width:480px">digital</div>
+  <div class="in fade" data-at="2400" style="position:absolute;left:810px;top:872px;width:300px;text-align:center;font-size:40px">Agent</div>
+  <div class="m in fade" data-at="3000" style="position:absolute;left:830px;top:746px;font-size:44px">o<sub>t</sub></div>
+  <div class="m in fade red" data-at="3500" style="position:absolute;left:1046px;top:746px;font-size:44px">a<sub>t</sub></div>
+  <div class="dot in fade" data-at="4000" style="offset-path:path('M900 724 V808');--t:1.6s"></div>
+  <div class="dot rd in fade" data-at="4000" style="offset-path:path('M1020 808 V728');--t:1.6s"></div>
 </section>
 
-<!-- 3 INTERFACE -->
-<section data-dur="16000">
-  <div class="kicker H in fade" data-at="0"><b>02</b>Environment–agent interface</div>
+<!-- 3 PARAMETRIZATION -->
+<section data-dur="13000">
+  <div class="kicker H in fade" data-at="0"><b>02</b>Parametrization</div>
   <div class="panel in fade" data-at="100" style="left:140px;top:150px;width:1640px;height:500px"><div class="lbl H">Environment</div></div>
-  <div class="mute in fade" data-at="3300" style="position:absolute;left:840px;top:200px;width:240px;text-align:center;font-size:26px">transition</div>
+  <div class="m in fade" data-at="3300" style="position:absolute;left:760px;top:176px;width:400px;text-align:center;font-size:34px"><span class="up">T</span>(s<sub>t+1</sub> | s<sub>t</sub> , <span class="red">a<sub>t</sub></span>)</div>
   <div class="box m in pop" data-at="500" style="left:280px;top:240px;width:240px;height:110px">s<sub>t</sub></div>
   <div class="box r m in pop" data-at="1100" style="left:300px;top:430px;width:200px;height:100px"><span class="up">Ω</span></div>
+  <div class="m in fade" data-at="1300" style="position:absolute;left:540px;top:455px;font-size:34px"><span class="up">Ω</span>(o<sub>t</sub> | s<sub>t</sub>)</div>
   <div class="box m in pop" data-at="1700" style="left:280px;top:700px;width:240px;height:100px">o<sub>t</sub></div>
   <div class="box agent in pop" data-at="2300" style="left:240px;top:880px;width:320px;height:110px">Agent</div>
   <div class="box r m in pop" data-at="3400" style="left:840px;top:240px;width:240px;height:110px"><span class="up">T</span></div>
@@ -129,234 +224,273 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
   <div class="box m in pop" data-at="5300" style="left:1400px;top:700px;width:240px;height:100px">o<sub>t+1</sub></div>
   <div class="m red in fade" data-at="3100" style="position:absolute;left:720px;top:860px;font-size:50px">a<sub>t</sub></div>
   <svg class="w" viewBox="0 0 1920 1080">
-    <defs>
-      <marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
-      <marker id="a3r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker>
-    </defs>
-    <path class="d" data-at="900" pathLength="1" d="M400 352 V424" marker-end="url(#a3)"/>
-    <path class="d" data-at="1500" pathLength="1" d="M400 532 V694" marker-end="url(#a3)"/>
-    <path class="d" data-at="2100" pathLength="1" d="M400 802 V874" marker-end="url(#a3)"/>
-    <path class="d rd" data-at="2800" pathLength="1" d="M562 935 H960 V356" marker-end="url(#a3r)"/>
-    <path class="d" data-at="3600" pathLength="1" d="M522 295 H834" marker-end="url(#a3)"/>
-    <path class="d" data-at="4000" pathLength="1" d="M1082 295 H1394" marker-end="url(#a3)"/>
-    <path class="d" data-at="4600" pathLength="1" d="M1520 352 V424" marker-end="url(#a3)"/>
-    <path class="d" data-at="5100" pathLength="1" d="M1520 532 V694" marker-end="url(#a3)"/>
+    <path class="d" data-at="900" pathLength="1" d="M400 352 V424" marker-end="url(#ah)"/>
+    <path class="d" data-at="1500" pathLength="1" d="M400 532 V694" marker-end="url(#ah)"/>
+    <path class="d" data-at="2100" pathLength="1" d="M400 802 V874" marker-end="url(#ah)"/>
+    <path class="d rd" data-at="2800" pathLength="1" d="M562 935 H960 V356" marker-end="url(#ahr)"/>
+    <path class="d" data-at="3600" pathLength="1" d="M522 295 H834" marker-end="url(#ah)"/>
+    <path class="d" data-at="4000" pathLength="1" d="M1082 295 H1394" marker-end="url(#ah)"/>
+    <path class="d" data-at="4600" pathLength="1" d="M1520 352 V424" marker-end="url(#ah)"/>
+    <path class="d" data-at="5100" pathLength="1" d="M1520 532 V694" marker-end="url(#ah)"/>
   </svg>
   <div class="dot in fade" data-at="6000" style="offset-path:path('M400 295 H1520 V750');--t:3.2s"></div>
   <div class="dot rd in fade" data-at="6000" style="offset-path:path('M560 935 H960 V350');--t:2.2s"></div>
-  <div class="in" data-at="6800" style="position:absolute;left:1000px;top:836px;font-size:40px;line-height:1.5">
-    <span class="m"><span class="up">T</span>(s<sub>t+1</sub> | s<sub>t</sub>, a<sub>t</sub>)</span>
-    <span style="display:inline-block;width:46px"></span>
-    <span class="m"><span class="up">Ω</span>(o<sub>t</sub> | s<sub>t</sub>)</span>
-  </div>
-  <div class="cap in" data-at="9000" style="position:absolute;left:1000px;top:912px;width:820px;font-size:30px">These are environment rules, <span class="red">not learned world-model predictions.</span></div>
 </section>
 
-<!-- 4 WHAT THE AGENT RECEIVES -->
-<section data-dur="13000">
-  <div class="kicker H in fade" data-at="0"><b>02</b>Environment and agent boundary</div>
-  <div class="in" data-at="400" style="position:absolute;left:200px;top:250px;text-align:center;width:420px">
+<!-- 4 WHAT THE AGENT HAS -->
+<section data-dur="11000">
+  <div class="kicker H in fade" data-at="0"><b>02</b>Parametrization</div>
+  <div class="in" data-at="400" style="position:absolute;left:200px;top:220px;text-align:center;width:420px">
     <div class="grid" data-mode="full" style="margin:0 auto"></div>
-    <div style="font-size:38px;margin-top:40px">a sufficient state</div>
+    <div class="m" style="font-size:56px;margin-top:30px">s<sub>t</sub></div>
   </div>
-  <div class="in" data-at="1800" style="position:absolute;left:750px;top:250px;text-align:center;width:420px">
+  <div class="in" data-at="1600" style="position:absolute;left:750px;top:220px;text-align:center;width:420px">
     <div class="grid" data-mode="partial" style="margin:0 auto"></div>
-    <div style="font-size:38px;margin-top:40px">only a partial view</div>
+    <div class="m" style="font-size:56px;margin-top:30px">o<sub>t</sub></div>
   </div>
-  <div class="in" data-at="3200" style="position:absolute;left:1300px;top:250px;text-align:center;width:420px">
+  <div class="in" data-at="2800" style="position:absolute;left:1300px;top:220px;text-align:center;width:420px">
     <div style="position:relative;width:260px;height:260px;margin:0 auto">
       <div class="grid" data-mode="h1" style="position:absolute;left:-36px;top:-36px;opacity:.3"></div>
       <div class="grid" data-mode="h2" style="position:absolute;left:-18px;top:-18px;opacity:.6"></div>
       <div class="grid" data-mode="partial" style="position:absolute;left:0;top:0;background:#141415"></div>
     </div>
-    <div style="font-size:38px;margin-top:40px">a history</div>
+    <div class="m" style="font-size:56px;margin-top:30px">h<sub>t</sub></div>
   </div>
-  <div class="m in pop" data-at="4600" style="position:absolute;left:0;width:1920px;top:690px;text-align:center;font-size:64px">h<sub>t</sub> = (o<sub>≤t</sub> , <span class="red">a<sub>&lt;t</sub></span>)</div>
-  <div class="cap in" data-at="7000" style="position:absolute;left:0;width:1920px;top:860px;text-align:center">Neither seeing the state nor observing a long history means the agent <span class="red">knows <span class="m up" style="font-family:'STIX Two Text',serif">T</span>.</span></div>
+  <div class="m in pop" data-at="4200" style="position:absolute;left:0;width:1920px;top:690px;text-align:center;font-size:64px">h<sub>t</sub> = (o<sub>≤t</sub> , <span class="red">a<sub>&lt;t</sub></span>)</div>
+  <div class="m in pop" data-at="6200" style="position:absolute;left:0;width:1920px;top:850px;text-align:center;font-size:64px">s<sub>t</sub> , h<sub>t</sub> <span class="red up" style="margin:0 24px">⇏</span> <span class="up">T</span></div>
 </section>
 
-<!-- 5 DEFINITION -->
-<section data-dur="13000">
-  <div class="kicker H in fade" data-at="0"><b>03</b>A proposed definition of a world model</div>
-  <div class="cap in mute" data-at="300" style="position:absolute;left:120px;top:190px;width:1500px;font-size:36px">A learned world model attempts to predict relevant consequences from the information available through this interface.</div>
-  <div class="in fade" data-at="2800" style="position:absolute;left:120px;top:370px;width:1680px;height:3px;background:var(--line)"></div>
-  <div class="H in" data-at="3200" style="position:absolute;left:120px;top:430px;font-size:60px">World model</div>
-  <div class="in" data-at="4000" style="position:absolute;left:120px;top:530px;width:1600px;font-size:58px;line-height:1.3;font-weight:300">a predictive relation from an available state or observation history to an <span class="hl" style="font-weight:700">outcome at a later time</span></div>
-  <div class="in" data-at="7400" style="position:absolute;left:120px;top:820px;width:1700px">
-    <span class="tag">observation</span><span class="tag">measured state</span><span class="tag">geometry</span><span class="tag">learned representation</span><span class="tag r">decision-relevant signal</span>
-  </div>
+<!-- 5 COMMON PATTERN ACROSS DEFINITIONS -->
+<section data-dur="15000">
+  <div class="kicker H in fade" data-at="0"><b>03</b>World model · common pattern</div>
+  <div class="row in left" data-at="300" style="top:180px"><div class="nm">World Models</div><div class="chip" style="width:280px">o<sub>t</sub></div><div class="arr"><span class="a">a<sub>t</sub></span></div><div class="chip r" style="width:320px">ẑ<sub>t+1</sub></div><div class="tm">t → t+1</div></div>
+  <div class="row in left" data-at="800" style="top:266px"><div class="nm">MuZero</div><div class="chip" style="width:280px">o<sub>≤t</sub></div><div class="arr"><span class="a">a<sub>t:t+k−1</sub></span></div><div class="chip r" style="width:320px">r̂ , v̂ , π̂</div><div class="tm">t → t+k</div></div>
+  <div class="row in left" data-at="1300" style="top:352px"><div class="nm">DreamerV3</div><div class="chip" style="width:280px">h<sub>t</sub></div><div class="arr"><span class="a">a<sub>t</sub></span></div><div class="chip r" style="width:320px">ẑ<sub>t+1</sub> , r̂</div><div class="tm">t → t+1</div></div>
+  <div class="row in left" data-at="1800" style="top:438px"><div class="nm">Genie</div><div class="chip" style="width:280px">o<sub>≤t</sub></div><div class="arr"><span class="a">ã<sub>t</sub></span></div><div class="chip r" style="width:320px">ô<sub>t+1</sub></div><div class="tm">t → t+1</div></div>
+  <div class="row in left" data-at="2300" style="top:524px"><div class="nm">V-JEPA 2-AC</div><div class="chip" style="width:280px">o<sub>t</sub></div><div class="arr"><span class="a">a<sub>t:t+k−1</sub></span></div><div class="chip r" style="width:320px">ẑ<sub>t+k</sub></div><div class="tm">t → t+k</div></div>
+  <div class="row in left" data-at="2800" style="top:610px"><div class="nm">GAIA-1</div><div class="chip" style="width:280px">o<sub>≤t</sub> , text</div><div class="arr"><span class="a">a<sub>t</sub></span></div><div class="chip r" style="width:320px">ô<sub>t+1:t+H</sub></div><div class="tm">t → t+H</div></div>
+  <div class="row in left" data-at="3300" style="top:696px"><div class="nm">WMA</div><div class="chip" style="width:280px">page<sub>t</sub></div><div class="arr"><span class="a">a<sub>t</sub></span></div><div class="chip r" style="width:320px">Δo<sup>text</sup><sub>t+1</sub></div><div class="tm">t → t+1</div></div>
+  <div class="row in left" data-at="3800" style="top:782px"><div class="nm">Sora</div><div class="chip" style="width:280px">o<sub>≤t</sub> , text</div><div class="arr pass"></div><div class="chip r" style="width:320px">ô<sub>t+1:t+H</sub></div><div class="tm">t → t+H</div></div>
+  <div class="overlay in fade" data-at="5200" style="left:1350px;top:164px;width:280px;height:700px"></div>
+  <div class="m red in fade" data-at="5400" style="position:absolute;left:1350px;top:110px;width:280px;text-align:center;font-size:40px">k &gt; 0</div>
+  <div class="m in pop" data-at="7000" style="position:absolute;left:0;width:1920px;top:900px;text-align:center;font-size:60px">h<sub>t</sub> <span class="red">( , a<sub>t:t+k−1</sub> )</span> <span class="up" style="margin:0 20px">⟶</span> ŷ<sub>t+k</sub> , <span class="red">k &gt; 0</span></div>
 </section>
 
-<!-- 6 FORMAL + COMPARE -->
-<section data-dur="16000">
-  <div class="kicker H in fade" data-at="0"><b>03</b>A proposed definition of a world model</div>
+<!-- 6 DEFINITION (formal) -->
+<section data-dur="14000">
+  <div class="kicker H in fade" data-at="0"><b>03</b>World model · definition</div>
   <div class="m in" data-at="200" style="position:absolute;left:0;width:1920px;top:150px;text-align:center;font-size:52px">
-    z<sub>t</sub> = f<sub>θ</sub>(h<sub>t</sub>)<span style="display:inline-block;width:70px"></span>ẑ<sub>t+k</sub> = g<sub>φ</sub>(z<sub>t</sub> , a<sub>t:t+k−1</sub>)<span style="display:inline-block;width:70px"></span><span class="red">k &gt; 0</span>
+    z<sub>t</sub> = f<sub>θ</sub>(h<sub>t</sub>)<span style="display:inline-block;width:70px"></span>ẑ<sub>t+k</sub> = g<sub>φ</sub>(z<sub>t</sub> , <span class="red">a<sub>t:t+k−1</sub></span>)<span style="display:inline-block;width:70px"></span><span class="red">k &gt; 0</span>
   </div>
-  <div class="panel in fade" data-at="900" style="left:130px;top:290px;width:1700px;height:300px"><div class="lbl H">Learned prediction</div></div>
+  <div class="panel in fade" data-at="900" style="left:130px;top:290px;width:1700px;height:300px"><div class="lbl H">Predict</div></div>
   <div class="box m in pop" data-at="1200" style="left:180px;top:400px;width:200px;height:110px">h<sub>t</sub></div>
   <div class="box m in pop" data-at="1700" style="left:480px;top:400px;width:200px;height:110px">f<sub>θ</sub></div>
   <div class="box m in pop" data-at="2200" style="left:780px;top:400px;width:200px;height:110px">z<sub>t</sub></div>
   <div class="box m in pop" data-at="2700" style="left:1080px;top:400px;width:220px;height:110px">g<sub>φ</sub></div>
   <div class="m red in fade" data-at="2900" style="position:absolute;left:1060px;top:305px;width:260px;text-align:center;font-size:36px">a<sub>t:t+k−1</sub></div>
   <div class="box tint m in pop" data-at="3400" style="left:1520px;top:400px;width:280px;height:110px">ẑ<sub>t+k</sub></div>
-  <div class="panel in fade" data-at="5200" style="left:130px;top:650px;width:1700px;height:260px"><div class="lbl H">Observed target</div></div>
+  <div class="panel in fade" data-at="5200" style="left:130px;top:650px;width:1700px;height:260px"><div class="lbl H">Observe</div></div>
   <div class="box m in pop" data-at="5500" style="left:420px;top:720px;width:280px;height:110px">o<sub>t+k</sub></div>
-  <div class="box in pop" data-at="6000" style="left:880px;top:720px;width:360px;height:110px;font-size:44px">encode</div>
+  <div class="box m in pop" data-at="6000" style="left:880px;top:720px;width:360px;height:110px">f<sub>ξ</sub></div>
   <div class="box m in pop" data-at="6500" style="left:1520px;top:720px;width:280px;height:110px">z<sub>t+k</sub></div>
   <svg class="w" viewBox="0 0 1920 1080">
-    <defs><marker id="a6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fff"/></marker>
-    <marker id="a6r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker></defs>
-    <path class="d" data-at="1500" pathLength="1" d="M382 455 H474" marker-end="url(#a6)"/>
-    <path class="d" data-at="2000" pathLength="1" d="M682 455 H774" marker-end="url(#a6)"/>
-    <path class="d" data-at="2500" pathLength="1" d="M982 455 H1074" marker-end="url(#a6)"/>
-    <path class="d rd" data-at="2900" pathLength="1" d="M1190 352 V394" marker-end="url(#a6r)"/>
-    <path class="d" data-at="3100" pathLength="1" d="M1302 455 H1514" marker-end="url(#a6)"/>
-    <path class="d" data-at="5800" pathLength="1" d="M702 775 H874" marker-end="url(#a6)"/>
-    <path class="d" data-at="6300" pathLength="1" d="M1242 775 H1514" marker-end="url(#a6)"/>
+    <path class="d" data-at="1500" pathLength="1" d="M382 455 H474" marker-end="url(#ah)"/>
+    <path class="d" data-at="2000" pathLength="1" d="M682 455 H774" marker-end="url(#ah)"/>
+    <path class="d" data-at="2500" pathLength="1" d="M982 455 H1074" marker-end="url(#ah)"/>
+    <path class="d rd" data-at="2900" pathLength="1" d="M1190 352 V394" marker-end="url(#ahr)"/>
+    <path class="d" data-at="3100" pathLength="1" d="M1302 455 H1514" marker-end="url(#ah)"/>
+    <path class="d" data-at="5800" pathLength="1" d="M702 775 H874" marker-end="url(#ah)"/>
+    <path class="d" data-at="6300" pathLength="1" d="M1242 775 H1514" marker-end="url(#ah)"/>
     <path class="dash in fade" data-at="7400" d="M1660 512 V716"/>
   </svg>
-  <div class="red in fade" data-at="7600" style="position:absolute;left:1690px;top:592px;font-size:30px">compare</div>
+  <div class="m red in fade" data-at="7600" style="position:absolute;left:1690px;top:582px;font-size:40px">≈</div>
   <div class="dot in fade" data-at="4000" style="offset-path:path('M280 455 H1660');--t:3s"></div>
   <div class="dot rd in fade" data-at="8000" style="offset-path:path('M1660 775 V455');--t:1.6s"></div>
-  <div class="cap in" data-at="9000" style="position:absolute;left:130px;top:950px;font-size:30px">only the executed action sequence has a <span class="red">matched observed outcome</span></div>
 </section>
 
-<!-- 7 BOUNDARY -->
-<section data-dur="14000">
-  <div class="kicker H in fade" data-at="0"><b>04</b>Evidence of a temporal predictive interface</div>
-  <div class="title H in" data-at="200" style="font-size:56px">The shared time index is the boundary</div>
-  <!-- left: k = 0 -->
-  <div class="in" data-at="1200" style="position:absolute;left:180px;top:290px;width:640px">
-    <div class="H mute" style="font-size:26px">Structural inference</div>
-    <div class="m" style="font-size:60px;margin-top:6px">k = 0</div>
-  </div>
-  <div class="in pop" data-at="1600" style="position:absolute;left:220px;top:440px;width:360px;height:360px;border:3px solid #fff;border-radius:12px;background:repeating-linear-gradient(0deg,transparent 0 71px,rgba(255,255,255,.08) 71px 72px),repeating-linear-gradient(90deg,transparent 0 71px,rgba(255,255,255,.08) 71px 72px)">
-    <div class="in fade" data-at="2400" style="position:absolute;left:180px;top:108px;width:144px;height:144px;border:3px dashed var(--red);border-radius:8px;background:repeating-linear-gradient(45deg,rgba(225,27,34,.35) 0 8px,transparent 8px 18px)"></div>
-  </div>
-  <div class="m in fade" data-at="1800" style="position:absolute;left:220px;top:820px;width:360px;text-align:center;font-size:40px">t</div>
-  <div class="in" data-at="3200" style="position:absolute;left:640px;top:470px;font-size:30px;line-height:1.9;color:var(--mute)">masked region<br>occluded surface<br>novel view</div>
-  <!-- divider -->
-  <div class="in fade" data-at="4200" style="position:absolute;left:958px;top:300px;width:3px;height:560px;background:var(--line)"></div>
-  <!-- right: k > 0 -->
-  <div class="in" data-at="4600" style="position:absolute;left:1080px;top:290px;width:700px">
-    <div class="H red" style="font-size:26px">World model</div>
-    <div class="m" style="font-size:60px;margin-top:6px">k &gt; 0</div>
-  </div>
-  <div class="in pop" data-at="5000" style="position:absolute;left:1080px;top:460px;width:290px;height:290px;border:3px solid #fff;border-radius:12px;background:var(--panel)">
-    <div style="position:absolute;left:60px;top:150px;width:60px;height:60px;border-radius:50%;background:#fff"></div></div>
-  <div class="in pop" data-at="6000" style="position:absolute;left:1520px;top:460px;width:290px;height:290px;border:3px solid var(--red);border-radius:12px;background:rgba(225,27,34,.1)">
-    <div style="position:absolute;left:170px;top:60px;width:60px;height:60px;border-radius:50%;background:var(--red)"></div></div>
-  <svg class="w" viewBox="0 0 1920 1080"><defs><marker id="a7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker></defs>
-    <path class="d rd" data-at="5600" pathLength="1" d="M1376 605 H1512" marker-end="url(#a7)"/></svg>
-  <div class="m in fade" data-at="5200" style="position:absolute;left:1080px;top:770px;width:290px;text-align:center;font-size:40px">t</div>
-  <div class="m in fade red" data-at="6200" style="position:absolute;left:1520px;top:770px;width:290px;text-align:center;font-size:40px">t + k</div>
-  <div class="in" data-at="8000" style="position:absolute;left:180px;top:920px;font-size:30px;color:var(--mute)">adjacent structural case</div>
-  <div class="in" data-at="8400" style="position:absolute;left:1080px;top:920px;font-size:30px">outcome at a later time</div>
-</section>
-
-<!-- 8 WHY DIFFERENT TESTS -->
+<!-- 7 BOUNDARY k=0 vs k>0 -->
 <section data-dur="12000">
-  <div class="kicker H in fade" data-at="0"><b>04</b>What evidence supports a world-model claim?</div>
-  <div class="card in left" data-at="400" style="left:120px;top:250px;width:800px;height:380px;padding-top:44px">
-    <div class="H" style="font-size:44px">Membership</div>
-    <div class="cap" style="margin-top:28px;font-size:32px">does the system learn and expose a temporally indexed prediction of an environmental outcome?</div>
+  <div class="kicker H in fade" data-at="0"><b>03</b>World model · boundary</div>
+  <div class="in" data-at="800" style="position:absolute;left:220px;top:220px;width:640px">
+    <div class="H mute" style="font-size:26px">Structural</div>
+    <div class="m" style="font-size:72px;margin-top:6px">k = 0</div>
   </div>
-  <div class="card in right" data-at="1600" style="left:1000px;top:250px;width:800px;height:380px;padding-top:44px;border-color:var(--red)">
-    <div class="H" style="font-size:44px">Quality</div>
-    <div class="cap" style="margin-top:28px;font-size:32px">how closely does that prediction track the environment within the claimed scope?</div>
+  <div class="in pop" data-at="1400" style="position:absolute;left:220px;top:400px;width:400px;height:400px;border:3px solid #fff;border-radius:12px;background:repeating-linear-gradient(0deg,transparent 0 79px,rgba(255,255,255,.08) 79px 80px),repeating-linear-gradient(90deg,transparent 0 79px,rgba(255,255,255,.08) 79px 80px)">
+    <div class="in fade" data-at="2200" style="position:absolute;left:200px;top:120px;width:160px;height:160px;border:3px dashed var(--red);border-radius:8px;background:repeating-linear-gradient(45deg,rgba(225,27,34,.35) 0 8px,transparent 8px 18px)"></div>
   </div>
-  <div class="H in" data-at="4200" style="position:absolute;left:0;width:1920px;top:730px;text-align:center;font-size:48px">A model may meet the definition<br><span class="red">and still be inaccurate.</span></div>
+  <div class="m in fade" data-at="1600" style="position:absolute;left:220px;top:820px;width:400px;text-align:center;font-size:44px">t</div>
+  <div class="in fade" data-at="3400" style="position:absolute;left:958px;top:230px;width:3px;height:640px;background:var(--line)"></div>
+  <div class="in" data-at="3800" style="position:absolute;left:1080px;top:220px;width:700px">
+    <div class="H red" style="font-size:26px">World model</div>
+    <div class="m" style="font-size:72px;margin-top:6px">k &gt; 0</div>
+  </div>
+  <div class="in pop" data-at="4200" style="position:absolute;left:1080px;top:450px;width:300px;height:300px;border:3px solid #fff;border-radius:12px;background:var(--panel)">
+    <div style="position:absolute;left:60px;top:170px;width:64px;height:64px;border-radius:50%;background:#fff"></div></div>
+  <div class="in pop" data-at="5200" style="position:absolute;left:1520px;top:450px;width:300px;height:300px;border:3px solid var(--red);border-radius:12px;background:rgba(225,27,34,.1)">
+    <div style="position:absolute;left:176px;top:60px;width:64px;height:64px;border-radius:50%;background:var(--red)"></div></div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <path class="d rd" data-at="4800" pathLength="1" d="M1386 600 H1512" marker-end="url(#ahr)"/>
+  </svg>
+  <div class="m in fade" data-at="4400" style="position:absolute;left:1080px;top:770px;width:300px;text-align:center;font-size:44px">t</div>
+  <div class="m in fade red" data-at="5400" style="position:absolute;left:1520px;top:770px;width:300px;text-align:center;font-size:44px">t + k</div>
 </section>
 
-<!-- 9 DIFFERENT CLAIMS -->
-<section data-dur="13000">
-  <div class="kicker H in fade" data-at="0"><b>04</b>What evidence supports a world-model claim?</div>
-  <div class="box in pop" data-at="300" style="left:120px;top:240px;width:520px;height:220px;font-size:36px;text-align:center;padding:24px;font-family:Lato,sans-serif">A visually plausible rollout</div>
-  <div class="box in pop" data-at="900" style="left:700px;top:240px;width:520px;height:220px;font-size:36px;text-align:center;padding:24px;font-family:Lato,sans-serif">an accurate one-step state estimate</div>
-  <div class="box in pop" data-at="1500" style="left:1280px;top:240px;width:520px;height:220px;font-size:36px;text-align:center;padding:24px;font-family:Lato,sans-serif">improved task reward</div>
-  <svg class="w" viewBox="0 0 1920 1080"><defs><marker id="a9" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#E11B22"/></marker></defs>
-    <path class="d rd" data-at="2400" pathLength="1" d="M380 464 V520 H1540 V464"/>
-    <path class="d rd" data-at="2900" pathLength="1" d="M960 520 V590" marker-end="url(#a9)"/></svg>
-  <div class="H in" data-at="3300" style="position:absolute;left:0;width:1920px;top:620px;text-align:center;font-size:56px">support <span class="red">different claims.</span></div>
-  <div class="cap in mute" data-at="6000" style="position:absolute;left:260px;width:1400px;top:800px;text-align:center">None alone establishes long-horizon consistency, fidelity to interventions, or transfer to new conditions.</div>
+<!-- 8 MEMBERSHIP -> QUALITY -->
+<section data-dur="12000">
+  <div class="kicker H in fade" data-at="0"><b>04</b>Evidence</div>
+  <div class="H in" data-at="1200" style="position:absolute;left:600px;top:230px;width:320px;text-align:center;font-size:30px">Membership</div>
+  <div class="H red in" data-at="3600" style="position:absolute;left:1250px;top:230px;width:400px;text-align:center;font-size:30px">Quality</div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <g class="in fade" data-at="300">
+      <circle cx="220" cy="480" r="16" fill="#fff"/><circle cx="300" cy="420" r="16" fill="#55585C"/><circle cx="360" cy="520" r="16" fill="#fff"/>
+      <circle cx="250" cy="580" r="16" fill="#fff"/><circle cx="330" cy="640" r="16" fill="#55585C"/><circle cx="410" cy="600" r="16" fill="#fff"/>
+      <circle cx="200" cy="700" r="16" fill="#fff"/><circle cx="290" cy="760" r="16" fill="#55585C"/><circle cx="390" cy="720" r="16" fill="#fff"/>
+      <circle cx="420" cy="460" r="16" fill="#fff"/>
+    </g>
+    <!-- gate 1 -->
+    <g class="in fade" data-at="1000">
+      <path d="M760 320 V560 M760 720 V960" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+      <text x="760" y="652" fill="#E11B22" font-family="STIX Two Text,serif" font-style="italic" font-size="44" text-anchor="middle">k&gt;0</text>
+    </g>
+    <path class="d" data-at="2000" pathLength="1" d="M800 640 H1180" marker-end="url(#ah)"/>
+    <!-- gauge -->
+    <g class="in fade" data-at="3200">
+      <path d="M1250 640 A200 200 0 0 1 1650 640" fill="none" stroke="#2a2a2c" stroke-width="34"/>
+      <path d="M1250 640 A200 200 0 0 1 1350 467" fill="none" stroke="#55585C" stroke-width="34"/>
+      <path d="M1550 467 A200 200 0 0 1 1650 640" fill="none" stroke="#E11B22" stroke-width="34"/>
+      <line class="needle" x1="1450" y1="640" x2="1450" y2="470" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="1450" cy="640" r="18" fill="#fff"/>
+    </g>
+  </svg>
+  <div class="dot in fade" data-at="2400" style="offset-path:path('M420 560 C560 560 640 640 760 640 H1430');--t:3s"></div>
+  <div class="dot in fade" data-at="3000" style="offset-path:path('M380 720 C540 720 640 640 760 640 H1430');--t:3.6s"></div>
+  <div class="dot gray in fade" data-at="2600" style="offset-path:path('M300 420 C480 400 640 420 738 440');--t:2.4s" ></div>
+  <div class="dot gray in fade" data-at="2900" style="offset-path:path('M290 760 C470 800 640 820 738 830');--t:2.8s" ></div>
+  <div class="m in fade" data-at="3000" style="position:absolute;left:620px;top:980px;width:280px;text-align:center;font-size:36px;color:var(--mute)">k = 0 ✕</div>
 </section>
 
-<!-- 10 FIVE TESTS -->
-<section data-dur="13000">
-  <div class="kicker H in fade" data-at="0"><b>04</b>Five complementary forms of evidence</div>
-  <div style="position:absolute;left:120px;top:190px;width:1680px">
-    <div class="in left" data-at="300"  style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">01</span><span style="font-size:50px">Target fidelity</span></div>
-    <div class="in left" data-at="1000" style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">02</span><span style="font-size:50px">Temporal consistency</span></div>
-    <div class="in left" data-at="1700" style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">03</span><span style="font-size:50px">Action or intervention sensitivity</span></div>
-    <div class="in left" data-at="2400" style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">04</span><span style="font-size:50px">Generalization and uncertainty</span></div>
-    <div class="in left" data-at="3100" style="display:flex;align-items:baseline;gap:40px;border-bottom:2px solid var(--line);padding:22px 0"><span class="H red" style="font-size:34px;width:90px">05</span><span style="font-size:50px">Decision utility</span></div>
-  </div>
-  <div class="H in" data-at="5200" style="position:absolute;left:120px;top:850px;font-size:40px">No single scalar score certifies<br><span class="red">a general world model.</span></div>
-</section>
-
-<!-- 11 TAXONOMY: TARGET -->
+<!-- 9 FIVE TESTS -->
 <section data-dur="15000">
-  <div class="kicker H in fade" data-at="0"><b>05</b>Taxonomy by prediction target, modality, and application</div>
-  <div class="title H in" data-at="200" style="font-size:52px">Prediction target is the primary axis</div>
-  <div class="red in fade" data-at="6500" style="position:absolute;right:120px;top:138px;font-size:30px">multiple memberships allowed</div>
-  <div class="card in pop" data-at="900"  style="left:120px;top:250px;width:540px;height:150px"><div class="t">Structured state</div><div class="s">measured state variables</div></div>
-  <div class="card in pop" data-at="1200" style="left:690px;top:250px;width:540px;height:150px"><div class="t">Observations / tokens</div><div class="s">frames, sensory outputs</div></div>
-  <div class="card in pop" data-at="1500" style="left:1260px;top:250px;width:540px;height:150px"><div class="t">Reconstructive latent</div><div class="s">latent dynamics + decoder</div></div>
-  <div class="card in pop" data-at="1800" style="left:120px;top:425px;width:540px;height:150px"><div class="t">Learned target features</div><div class="s">future or masked features</div></div>
-  <div class="card in pop" data-at="2100" style="left:690px;top:425px;width:540px;height:150px"><div class="t">Decision signals</div><div class="s">reward, value, policy</div></div>
-  <div class="card in pop" data-at="2400" style="left:1260px;top:425px;width:540px;height:150px"><div class="t">Explicit 3D geometry</div><div class="s">future spatial structure</div></div>
-  <div class="card in pop" data-at="2700" style="left:120px;top:600px;width:540px;height:150px"><div class="t">Textual state change</div><div class="s">described environment change</div></div>
-  <div class="card in pop" data-at="3000" style="left:690px;top:600px;width:540px;height:150px"><div class="t">World + actions jointly</div><div class="s">outcomes and executable actions</div></div>
-  <div class="in fade" data-at="3600" style="position:absolute;left:1260px;top:600px;width:540px;height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:32px;color:var(--mute);line-height:1.35"><span>Temporal claim: outcome<br>at a later time (<span class="m red" style="font-size:36px">k &gt; 0</span>)</span></div>
-  <div class="in" data-at="4800" style="position:absolute;left:120px;top:785px;width:1680px;height:110px;border:2px solid var(--line);border-radius:16px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 40px">
-    <span class="H" style="font-size:28px">Adjacent structural case&nbsp;&nbsp;(k = 0)</span>
-    <span class="mute" style="font-size:30px">masked features; scene structure / novel views</span>
-  </div>
+  <div class="kicker H in fade" data-at="0"><b>04</b>Evidence · five tests</div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <!-- 1 fidelity -->
+    <g class="in" data-at="300">
+      <rect x="120" y="200" width="312" height="600" rx="18" fill="rgba(255,255,255,.035)" stroke="#55585C" stroke-width="2"/>
+      <path d="M150 560 H410 M150 560 V300" stroke="#55585C" stroke-width="3"/>
+      <path d="M160 470 H400" stroke="#55585C" stroke-width="3" stroke-dasharray="10 8"/>
+      <path d="M160 470 C200 400 230 380 260 420 S320 520 350 440 S390 360 400 380" fill="none" stroke="#fff" stroke-width="5"/>
+      <path d="M160 474 C200 410 232 390 262 430 S322 512 352 446 S392 372 400 392" fill="none" stroke="#E11B22" stroke-width="5" stroke-dasharray="12 8"/>
+    </g>
+    <!-- 2 temporal consistency -->
+    <g class="in" data-at="1100">
+      <rect x="464" y="200" width="312" height="600" rx="18" fill="rgba(255,255,255,.035)" stroke="#55585C" stroke-width="2"/>
+      <path d="M494 560 H754 M494 560 V300" stroke="#55585C" stroke-width="3"/>
+      <path d="M504 540 C580 536 640 520 680 470 S730 360 744 320" fill="none" stroke="#E11B22" stroke-width="5"/>
+      <path d="M504 545 C600 543 680 535 744 515" fill="none" stroke="#fff" stroke-width="5"/>
+      <text x="740" y="596" fill="rgba(255,255,255,.62)" font-family="STIX Two Text,serif" font-style="italic" font-size="34" text-anchor="end">k</text>
+    </g>
+    <!-- 3 action sensitivity -->
+    <g class="in" data-at="1900">
+      <rect x="808" y="200" width="312" height="600" rx="18" fill="rgba(255,255,255,.035)" stroke="#55585C" stroke-width="2"/>
+      <path d="M864 430 L1050 330 M864 430 L1050 530" stroke="#fff" stroke-width="4" fill="none"/>
+      <path d="M864 430 H1050" stroke="#55585C" stroke-width="4" stroke-dasharray="10 8"/>
+      <circle cx="864" cy="430" r="20" fill="#161617" stroke="#fff" stroke-width="4"/>
+      <circle cx="1060" cy="325" r="22" fill="#fff"/><circle cx="1060" cy="535" r="22" fill="#E11B22"/><circle cx="1060" cy="430" r="16" fill="#55585C"/>
+      <text x="940" y="350" fill="#E11B22" font-family="STIX Two Text,serif" font-style="italic" font-size="34" text-anchor="middle">a¹</text>
+      <text x="940" y="542" fill="#E11B22" font-family="STIX Two Text,serif" font-style="italic" font-size="34" text-anchor="middle">a²</text>
+    </g>
+    <!-- 4 generalization -->
+    <g class="in" data-at="2700">
+      <rect x="1152" y="200" width="312" height="600" rx="18" fill="rgba(255,255,255,.035)" stroke="#55585C" stroke-width="2"/>
+      <path d="M1182 450 C1250 440 1300 430 1308 428 L1434 380 L1434 520 L1308 470 C1300 470 1250 462 1182 462 Z" fill="rgba(225,27,34,.18)"/>
+      <path d="M1308 300 V580" stroke="#55585C" stroke-width="3" stroke-dasharray="8 8"/>
+      <circle cx="1200" cy="452" r="8" fill="#fff"/><circle cx="1228" cy="446" r="8" fill="#fff"/><circle cx="1252" cy="460" r="8" fill="#fff"/><circle cx="1280" cy="448" r="8" fill="#fff"/>
+      <circle cx="1340" cy="420" r="8" fill="#E11B22"/><circle cx="1372" cy="478" r="8" fill="#E11B22"/><circle cx="1402" cy="402" r="8" fill="#E11B22"/><circle cx="1424" cy="500" r="8" fill="#E11B22"/>
+    </g>
+    <!-- 5 decision utility -->
+    <g class="in" data-at="3500">
+      <rect x="1496" y="200" width="312" height="600" rx="18" fill="rgba(255,255,255,.035)" stroke="#55585C" stroke-width="2"/>
+      <path d="M1526 560 H1786" stroke="#55585C" stroke-width="3"/>
+      <rect x="1566" y="440" width="70" height="120" rx="6" fill="#55585C"/>
+      <rect x="1676" y="320" width="70" height="240" rx="6" fill="#E11B22"/>
+      <text x="1601" y="600" fill="rgba(255,255,255,.62)" font-family="Lato,sans-serif" font-size="26" text-anchor="middle">−</text>
+      <text x="1711" y="600" fill="rgba(255,255,255,.62)" font-family="Lato,sans-serif" font-size="26" text-anchor="middle">+</text>
+    </g>
+  </svg>
+  <div class="in" data-at="500"  style="position:absolute;left:120px;top:630px;width:312px;text-align:center"><div class="H red" style="font-size:22px">01</div><div style="font-size:32px;margin-top:10px">Fidelity</div><div class="m mute" style="font-size:26px;margin-top:8px">vs ŷ<sub>t+k</sub> = y<sub>t</sub></div></div>
+  <div class="in" data-at="1300" style="position:absolute;left:464px;top:630px;width:312px;text-align:center"><div class="H red" style="font-size:22px">02</div><div style="font-size:32px;margin-top:10px">Consistency</div><div class="m mute" style="font-size:26px;margin-top:8px">error over k</div></div>
+  <div class="in" data-at="2100" style="position:absolute;left:808px;top:630px;width:312px;text-align:center"><div class="H red" style="font-size:22px">03</div><div style="font-size:32px;margin-top:10px">Action sensitivity</div><div class="m mute" style="font-size:26px;margin-top:8px">vs p(y<sub>t+k</sub> | h<sub>t</sub>)</div></div>
+  <div class="in" data-at="2900" style="position:absolute;left:1152px;top:630px;width:312px;text-align:center"><div class="H red" style="font-size:22px">04</div><div style="font-size:32px;margin-top:10px">Generalization</div><div class="mute" style="font-size:24px;margin-top:8px">held-out · uncertainty</div></div>
+  <div class="in" data-at="3700" style="position:absolute;left:1496px;top:630px;width:312px;text-align:center"><div class="H red" style="font-size:22px">05</div><div style="font-size:32px;margin-top:10px">Decision utility</div><div class="mute" style="font-size:24px;margin-top:8px">± rollouts · same compute</div></div>
 </section>
 
-<!-- 12 TAXONOMY: MODALITY + APPLICATION -->
+<!-- 10 TAXONOMY -->
+<section data-dur="15000">
+  <div class="kicker H in fade" data-at="0"><b>05</b>Taxonomy · prediction target</div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <g class="in fade" data-at="1000" stroke="#55585C" stroke-width="3">
+      <path d="M960 580 L960 250 M960 580 L1420 350 M960 580 L1620 580 M960 580 L1420 810 M960 580 L960 900 M960 580 L500 810 M960 580 L300 580 M960 580 L500 350"/>
+    </g>
+    <circle class="in fade" data-at="300" cx="960" cy="580" r="110" fill="rgba(225,27,34,.16)" stroke="#E11B22" stroke-width="4"/>
+  </svg>
+  <div class="m in pop" data-at="500" style="position:absolute;left:810px;top:548px;width:300px;text-align:center;font-size:52px">k &gt; 0</div>
+  <div class="sat in pop" data-at="1300" style="left:960px;top:250px"><div class="q">ŝ<sub>t+1</sub></div><div class="nm">structured state</div></div>
+  <div class="sat in pop" data-at="1600" style="left:1420px;top:350px"><div class="q">ô<sub>t+1:t+H</sub></div><div class="nm">observations / tokens</div></div>
+  <div class="sat in pop" data-at="1900" style="left:1620px;top:580px"><div class="q">ẑ<sub>t+1</sub> → ô</div><div class="nm">reconstructive latent</div></div>
+  <div class="sat in pop" data-at="2200" style="left:1420px;top:810px"><div class="q">ẑ<sub>t+k</sub></div><div class="nm">learned features</div></div>
+  <div class="sat in pop" data-at="2500" style="left:960px;top:900px"><div class="q">r̂ , v̂ , π̂</div><div class="nm">decision signals</div></div>
+  <div class="sat in pop" data-at="2800" style="left:500px;top:810px"><div class="q">ĝ<sub>t+1</sub></div><div class="nm">3D geometry</div></div>
+  <div class="sat in pop" data-at="3100" style="left:300px;top:580px"><div class="q">Δô<sup>text</sup><sub>t+1</sub></div><div class="nm">textual change</div></div>
+  <div class="sat in pop" data-at="3400" style="left:500px;top:350px"><div class="q">( ô , â )</div><div class="nm">world + actions</div></div>
+  <div class="sat adj in pop" data-at="4400" style="left:1730px;top:960px;width:280px;margin-left:-140px"><div class="q" style="color:var(--mute)">k = 0</div><div class="nm">masked · novel view</div></div>
+</section>
+
+<!-- 11 MULTI-MEMBERSHIP MATRIX -->
 <section data-dur="14000">
-  <div class="kicker H in fade" data-at="0"><b>05</b>Taxonomy by prediction target, modality, and application</div>
-  <div class="title H in" data-at="200" style="font-size:44px">Modality and application are additional axes</div>
-  <div class="in" data-at="900" style="position:absolute;left:120px;top:260px;width:780px">
-    <div class="H red" style="font-size:30px;margin-bottom:26px">Modality</div>
-    <div style="font-size:24px;color:var(--mute);margin-bottom:22px">what the model receives and predicts</div>
+  <div class="kicker H in fade" data-at="0"><b>05</b>Taxonomy · overlapping classes</div>
+  <div class="in fade" data-at="200" style="position:absolute;left:520px;top:160px;width:1280px;display:grid;grid-template-columns:repeat(8,160px);text-align:center">
+    <div class="m" style="font-size:34px">ŝ</div><div class="m" style="font-size:34px">ô</div><div class="m" style="font-size:34px">ẑ→ô</div><div class="m" style="font-size:34px">ẑ<sub>t+k</sub></div><div class="m" style="font-size:34px">r̂ v̂ π̂</div><div class="m" style="font-size:34px">ĝ</div><div class="m" style="font-size:34px">Δtext</div><div class="m" style="font-size:34px">(ô,â)</div>
   </div>
-  <div style="position:absolute;left:120px;top:380px;width:780px">
-    <div class="in left" data-at="1300"><span class="tag">Structured variables</span></div>
-    <div class="in left" data-at="1600"><span class="tag">Images and video</span></div>
-    <div class="in left" data-at="1900"><span class="tag">Learned visual features</span></div>
-    <div class="in left" data-at="2200"><span class="tag">Geometry and spatial data</span></div>
-    <div class="in left" data-at="2500"><span class="tag">Text and interface state</span></div>
-  </div>
-  <div class="in fade" data-at="3000" style="position:absolute;left:958px;top:270px;width:3px;height:640px;background:var(--line)"></div>
-  <div class="in" data-at="3400" style="position:absolute;left:1040px;top:260px;width:780px">
-    <div class="H red" style="font-size:30px;margin-bottom:26px">Application</div>
-    <div style="font-size:24px;color:var(--mute);margin-bottom:22px">where the predictive relation is used</div>
-  </div>
-  <div style="position:absolute;left:1040px;top:380px;width:780px">
-    <div class="in right" data-at="3800"><span class="tag">Robotics and embodied control</span></div>
-    <div class="in right" data-at="4100"><span class="tag">Games and interactive simulation</span></div>
-    <div class="in right" data-at="4400"><span class="tag">Driving</span></div>
-    <div class="in right" data-at="4700"><span class="tag">Web and software interaction</span></div>
-    <div class="in right" data-at="5000"><span class="tag">Scientific and biological forecasting</span></div>
-    <div class="in right" data-at="5300"><span class="tag">Video and environment generation</span></div>
-  </div>
+  <svg class="w" viewBox="0 0 1920 1080" id="mx"></svg>
+</section>
+
+<!-- 12 MODALITY + APPLICATION -->
+<section data-dur="13000">
+  <div class="kicker H in fade" data-at="0"><b>05</b>Taxonomy · modality and application</div>
+  <div class="H red in fade" data-at="300" style="position:absolute;left:120px;top:170px;font-size:26px">Modality</div>
+  <div class="tile in pop" data-at="600"  style="left:120px;top:220px;width:316px;height:280px"><svg><use href="#i-table"/></svg><div>structured</div></div>
+  <div class="tile in pop" data-at="800"  style="left:461px;top:220px;width:316px;height:280px"><svg><use href="#i-film"/></svg><div>video</div></div>
+  <div class="tile in pop" data-at="1000" style="left:802px;top:220px;width:316px;height:280px"><svg><use href="#i-feat"/></svg><div>features</div></div>
+  <div class="tile in pop" data-at="1200" style="left:1143px;top:220px;width:316px;height:280px"><svg><use href="#i-geo"/></svg><div>geometry</div></div>
+  <div class="tile in pop" data-at="1400" style="left:1484px;top:220px;width:316px;height:280px"><svg><use href="#i-text"/></svg><div>text / interface</div></div>
+  <div class="H red in fade" data-at="2400" style="position:absolute;left:120px;top:570px;font-size:26px">Application</div>
+  <div class="tile in pop" data-at="2700" style="left:120px;top:620px;width:260px;height:280px"><svg><use href="#i-robot"/></svg><div>robotics</div></div>
+  <div class="tile in pop" data-at="2900" style="left:404px;top:620px;width:260px;height:280px"><svg><use href="#i-pad"/></svg><div>games</div></div>
+  <div class="tile in pop" data-at="3100" style="left:688px;top:620px;width:260px;height:280px"><svg><use href="#i-car"/></svg><div>driving</div></div>
+  <div class="tile in pop" data-at="3300" style="left:972px;top:620px;width:260px;height:280px"><svg><use href="#i-web"/></svg><div>web / software</div></div>
+  <div class="tile in pop" data-at="3500" style="left:1256px;top:620px;width:260px;height:280px"><svg><use href="#i-cell"/></svg><div>science / bio</div></div>
+  <div class="tile in pop" data-at="3700" style="left:1540px;top:620px;width:260px;height:280px"><svg><use href="#i-gen"/></svg><div>generation</div></div>
 </section>
 
 <!-- 13 CLOSE -->
 <section data-dur="12000">
-  <div class="kicker H in fade" data-at="0"><b>05</b>Describe separately</div>
-  <div style="position:absolute;left:120px;top:200px;width:1680px">
-    <span class="tag in pop" data-at="300">Training signal</span><span class="tag in pop" data-at="550">Conditioning</span><span class="tag in pop" data-at="800">Horizon</span><span class="tag in pop" data-at="1050">Architecture</span><span class="tag in pop" data-at="1300">Input modality</span><span class="tag in pop" data-at="1550">Use</span>
-  </div>
-  <div class="in fade" data-at="2600" style="position:absolute;left:120px;top:440px;width:14px;height:180px;background:var(--red)"></div>
-  <div class="H in left" data-at="2800" style="position:absolute;left:180px;top:440px;font-size:74px;line-height:1.08;width:1600px">Evidence must be matched to the <span class="red">predicted target</span> and <span class="red">intended use.</span></div>
+  <svg class="w" viewBox="0 0 1920 1080">
+    <path class="d rd" data-at="300" pathLength="1" d="M600 740 V230" marker-end="url(#ahr)"/>
+    <path class="d" data-at="700" pathLength="1" d="M600 740 L1060 900" marker-end="url(#ah)"/>
+    <path class="d" data-at="1100" pathLength="1" d="M600 740 L160 900" marker-end="url(#ah)"/>
+    <g class="in fade" data-at="2000" stroke="#E11B22" stroke-width="3" stroke-dasharray="8 8" fill="none">
+      <path d="M760 480 H600 M760 480 L760 796"/>
+    </g>
+    <circle class="in fade" data-at="2000" cx="760" cy="480" r="20" fill="#E11B22"/>
+  </svg>
+  <div class="H red in fade" data-at="500" style="position:absolute;left:470px;top:180px;width:260px;text-align:center;font-size:24px">Target</div>
+  <div class="H in fade" data-at="900" style="position:absolute;left:960px;top:920px;font-size:24px">Modality</div>
+  <div class="H in fade" data-at="1300" style="position:absolute;left:90px;top:920px;font-size:24px">Application</div>
+  <div class="in fade" data-at="3000" style="position:absolute;left:1220px;top:380px;width:14px;height:260px;background:var(--red)"></div>
+  <div class="H in left" data-at="3200" style="position:absolute;left:1280px;top:370px;font-size:64px;line-height:1.1;width:560px">Evidence ↔<br><span class="red">target</span><br>+ <span class="red">use</span></div>
 </section>
 
 <div class="mark H">US<i>F</i>Q</div>
-<div class="bar" id="bar"></div>
 <div class="ctl" id="ctl">
   <button id="prev" aria-label="Previous">‹</button>
   <button id="play" aria-label="Pause">❚❚</button>
@@ -373,7 +507,7 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
 
   let hideT;function ui(){stage.classList.add('ui');clearTimeout(hideT);hideT=setTimeout(()=>stage.classList.remove('ui'),2200);}
   addEventListener('mousemove',ui);addEventListener('touchstart',ui);ui();
-  document.querySelectorAll('.box').forEach(b=>{b.innerHTML='<span>'+b.innerHTML+'</span>';});
+  document.querySelectorAll('.box,.chip').forEach(b=>{b.innerHTML='<span>'+b.innerHTML+'</span>';});
   // build grids
   document.querySelectorAll('.grid').forEach(g=>{
     const mode=g.dataset.mode;
@@ -383,9 +517,27 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
       g.appendChild(c);}
   });
 
+  // build taxonomy membership matrix
+  (function(){
+    const svg=document.getElementById('mx');if(!svg)return;const NS='http://www.w3.org/2000/svg';
+    const rows=[['PETS',[0]],['Chreode',[0]],['GameNGen',[1]],['Genie',[1]],['World Models',[2]],['DreamerV3',[2,4]],['V-JEPA 2-AC',[3]],['TD-MPC2',[3,4]],['MuZero',[4]],['OccWorld',[5]],['WMA',[6]],['τ₀-WM',[4,7]]];
+    const x0=600,dx=160,y0=270,dy=58;
+    function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+    const grid=el('g',{class:'in fade','data-at':'200'});
+    for(let c=0;c<=8;c++)grid.appendChild(el('path',{d:'M'+(520+c*dx)+' 230 V'+(y0+rows.length*dy-30),stroke:'rgba(255,255,255,.08)','stroke-width':2}));
+    svg.appendChild(grid);
+    rows.forEach((r,i)=>{
+      const y=y0+i*dy,multi=r[1].length>1,g=el('g',{class:'in fade','data-at':String(600+i*380)});
+      g.appendChild(el('path',{d:'M120 '+(y+26)+' H1800',stroke:'rgba(255,255,255,.06)','stroke-width':2}));
+      const t=el('text',{x:120,y:y+10,fill:multi?'#fff':'rgba(255,255,255,.75)','font-family':'Lato,sans-serif','font-size':30,'dominant-baseline':'middle'});t.textContent=r[0];g.appendChild(t);
+      if(multi){const a=r[1][0],b=r[1][r[1].length-1];g.appendChild(el('path',{d:'M'+(x0+a*dx)+' '+y+' H'+(x0+b*dx),stroke:'#E11B22','stroke-width':6}));}
+      r[1].forEach(c=>g.appendChild(el('circle',{cx:x0+c*dx,cy:y,r:16,fill:multi?'#E11B22':'#fff'})));
+      svg.appendChild(g);
+    });
+  })();
   const scenes=[...document.querySelectorAll('section')];
   const n=scenes.length;let i=0,timers=[],playing=true,elapsed=0,last=performance.now();
-  const bar=document.getElementById('bar'),num=document.getElementById('num'),playBtn=document.getElementById('play');
+  const num=document.getElementById('num'),playBtn=document.getElementById('play');
   function show(k){
     timers.forEach(clearTimeout);timers=[];
     i=Math.max(0,Math.min(n-1,k));
@@ -395,17 +547,15 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
       timers.push(setTimeout(()=>e.classList.add('on'),+e.dataset.at+250));});
     elapsed=0;num.textContent=String(i+1).padStart(2,'0')+' / '+String(n).padStart(2,'0');
   }
-  function setPlay(p){playing=p;playBtn.textContent=p?'❚❚':'▶';playBtn.setAttribute('aria-label',p?'Pause':'Play');}
+  function setPlay(p){playing=p;stage.classList.toggle('paused',!p);playBtn.textContent=p?'❚❚':'▶';playBtn.setAttribute('aria-label',p?'Pause':'Play');}
   function loop(now){
     if(playing)elapsed+=now-last;last=now;
     const dur=+scenes[i].dataset.dur;
-    bar.style.width=Math.min(100,elapsed/dur*100)+'%';
-    if(playing&&elapsed>=dur){ if(i<n-1)show(i+1); else setPlay(false); }
     requestAnimationFrame(loop);
   }
   document.getElementById('next').onclick=e=>{e.stopPropagation();show(i+1);};
   document.getElementById('prev').onclick=e=>{e.stopPropagation();show(i-1);};
-  playBtn.onclick=e=>{e.stopPropagation();if(!playing&&i===n-1&&elapsed>=+scenes[i].dataset.dur)show(0);setPlay(!playing);};
+  playBtn.onclick=e=>{e.stopPropagation();setPlay(!playing);};
   stage.addEventListener('click',()=>show(i+1));
   addEventListener('keydown',e=>{
     if(e.key==='ArrowRight'||e.key==='PageDown')show(i+1);
@@ -413,7 +563,7 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
     else if(e.key===' '){e.preventDefault();setPlay(!playing);}
     else if(e.key==='Home')show(0);
   });
-  show(0);requestAnimationFrame(loop);
+  const h=parseInt(location.hash.slice(1),10);show(h>0?h-1:0);if(/still/.test(location.search))setPlay(false);requestAnimationFrame(loop);
 })();
 </script>
 </body>
