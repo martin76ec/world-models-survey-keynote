@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Survey of World Models</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,8 +10,9 @@
 <style>
 :root{--red:#E11B22;--ink:#0f0f10;--panel:#161617;--line:#55585C;--mute:rgba(255,255,255,.62);--soft:rgba(255,255,255,.08)}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Lato,sans-serif;-webkit-font-smoothing:antialiased}
-.stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center center;overflow:hidden;color:#fff;
+html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:manipulation;}
+body{position:fixed;inset:0;font-family:Lato,sans-serif;-webkit-font-smoothing:antialiased}
+.stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;color:#fff;
   background:radial-gradient(1400px 900px at 85% -10%,#232325 0%,#121213 55%,#0c0c0d 100%);cursor:pointer}
 section{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .7s ease,visibility 0s .7s}
 section.active{opacity:1;visibility:visible;transition:opacity .7s ease}
@@ -502,8 +503,12 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
 <script>
 (function(){
   const stage=document.getElementById('stage');
-  function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='translate(-50%,-50%) scale('+s+')';}
-  addEventListener('resize',fit);fit();
+  // scale the fixed 1920x1080 stage to the viewport (phones: fits the screen width, letterboxed)
+  function fit(){const de=document.documentElement,w=de.clientWidth||innerWidth,h=de.clientHeight||innerHeight;
+    const s=Math.min(w/1920,h/1080),x=(w-1920*s)/2,y=(h-1080*s)/2;
+    stage.style.transform='translate('+x+'px,'+y+'px) scale('+s+')';}
+  addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,150));
+  if(window.visualViewport)visualViewport.addEventListener('resize',fit);fit();
 
   let hideT;function ui(){stage.classList.add('ui');clearTimeout(hideT);hideT=setTimeout(()=>stage.classList.remove('ui'),2200);}
   addEventListener('mousemove',ui);addEventListener('touchstart',ui);ui();
@@ -556,7 +561,12 @@ path.dash{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:14 12}
   document.getElementById('next').onclick=e=>{e.stopPropagation();show(i+1);};
   document.getElementById('prev').onclick=e=>{e.stopPropagation();show(i-1);};
   playBtn.onclick=e=>{e.stopPropagation();setPlay(!playing);};
-  stage.addEventListener('click',()=>show(i+1));
+  // tap = next; swipe left = next, swipe right = previous
+  let tx=null,ty=0,swiped=false;
+  addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;swiped=false;},{passive:true});
+  addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)){swiped=true;show(dx<0?i+1:i-1);}tx=null;},{passive:true});
+  stage.addEventListener('click',()=>{if(swiped){swiped=false;return;}show(i+1);});
   addEventListener('keydown',e=>{
     if(e.key==='ArrowRight'||e.key==='PageDown')show(i+1);
     else if(e.key==='ArrowLeft'||e.key==='PageUp')show(i-1);
